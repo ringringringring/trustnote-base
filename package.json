@@ -15,11 +15,11 @@
   },
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/victor55511/trustnote-core.git",
+    "url": "https://github.com/trustnote/trustnote-core.git",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/victor55511/trustnote-core/issues"
+    "url": "https://github.com/trustnote/trustnote-core/issues"
   },
   "browser": {
     "request": "browser-request",
