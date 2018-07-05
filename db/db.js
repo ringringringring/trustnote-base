@@ -1,7 +1,7 @@
 /*jslint node: true */
 "use strict";
 
-const conf = require('../common/conf');
+const conf = require('../config/constants');
 var mysql = require('mysql');
 var pool  = mysql.createPool({
     connectionLimit : conf.database.max_connections,
@@ -27,7 +27,7 @@ class DataBase {
         conn.release();
     }
     */
-    
+
     query (sqlstr, params, conn ) {
         let resolve;
         const waitPromise = new Promise(r => resolve = r);

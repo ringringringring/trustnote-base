@@ -8,4 +8,8 @@ const database = {
     password: '123'
 }
 
-exports.database = database;
+
+
+module.exports = { 
+    database: database
+}
