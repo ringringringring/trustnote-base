@@ -1,10 +1,11 @@
 'use strict'
 
 var db = require('../db/db');
+const log = require('../common/logger');
 
 async function test () {
    let ret =  await db.query("select * from addresses where address=?", ['wuwei']);
-   console.log(ret);
+   log.info(ret);
 
    // let arr = [];
    // db.addQuery(arr, "insert into addresses ( address ) values (?)", ['zhangsan']);
@@ -27,17 +28,16 @@ async function test () {
    console.log(ok);
    */
    let ret2 =  await db.query("select * from addresses"); 
-   console.log(ret2);
+   log.info(ret2);
    
    async function doWork (conn) {
-        let ret2 =  await db.query("insert into addresses ( address ) values (?)",  ['zhangsan11111'] , conn);
-        console.log(ret2);
+        let ret2 =  await db.query("insert into addresses ( address ) values (?)",  ['zhangsan1111'] , conn);
    }    
 
    await db.executeInTransaction(doWork);
 
    let ret3 =  await db.query("select * from addresses");
-   console.log('end:',ret3);
+   log.info(ret3);
    
 }
 

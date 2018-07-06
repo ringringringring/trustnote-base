@@ -2,6 +2,7 @@
 "use strict";
 
 const conf = require('../config/constants');
+const log = require('../common/logger');
 var mysql = require('mysql');
 var pool  = mysql.createPool({
     connectionLimit : conf.database.max_connections,
@@ -20,11 +21,15 @@ class DataBase {
 
     async executeInTransaction (doWork) {
         let conn =  await this.takeConnectionFromPool();
+        if (!conn) {
+            log.error('takeConnectionFromPool failed !');
+            return;
+        }
         await this.query("BEGIN", null, conn);
         let err = await doWork(conn);
         await this.query(err ? "ROLLBACK" : "COMMIT", null, conn);
         conn.release();
-        console.log(`connection: ${conn.threadId} is released`)
+        log.info(`connection: ${conn.threadId} is released`)
     }
     
     query (sqlstr, params, conn ) {
@@ -33,7 +38,7 @@ class DataBase {
         
         function callback ( err, results, fields ) {
             if (err) {
-                console.log('query err:',err);
+                log.error(`query err: ${err}`);
                 resolve(err);
             } else  resolve(results);
         };
@@ -54,26 +59,32 @@ class DataBase {
     takeConnectionFromPool () {
         return new Promise ((resolve, reject)=> {
             this.pool.getConnection(function(err, new_connection) {
-                if (err)
-                    throw err;
-                console.log("got connection from pool");
+                if (err) {
+                    log.error('getConnection err:',err);
+                    resolve(null)
+                    return;
+                };
+                log.info("got connection from pool");
                 resolve(new_connection);
             });
         })
     }
 
     addQuery (arr, sqlstr, params, conn ) {
+        if (!Array.isArray(arr)) {
+            log.warn('the first param execpted an array');
+            return;
+        };
         arr.push( {sqlstr: sqlstr, params: params, conn: conn } );
     }
 
     async exec (arr) {
         if (!Array.isArray(arr)) {
-            console.log('exec params execpted an array');
+            log.info('exec params execpted an array');
             return;
         }
         for (let i = 0; i < arr.length; i ++ ) {
             let item = arr[i];
-            console.log(item);
             await this.query(item.sqlstr, item.params, item.conn);
         }
         return '1'
