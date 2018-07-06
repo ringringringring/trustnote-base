@@ -15,6 +15,8 @@ async function test () {
    // let ok = await db.exec(arr);
    // console.log(ok);
 
+
+   /*
    let arr = [];
    db.addQuery(arr, "delete from addresses where address=?", ['zhangsan']);
    db.addQuery(arr, "delete from addresses where address=?", ['lisi'])
@@ -23,34 +25,21 @@ async function test () {
 
    let ok = await db.exec(arr);
    console.log(ok);
-
-   let ret2 =  await db.query("select * from addresses");
+   */
+   let ret2 =  await db.query("select * from addresses"); 
    console.log(ret2);
+   
+   async function doWork (conn) {
+        let ret2 =  await db.query("insert into addresses ( address ) values (?)",  ['zhangsan11111'] , conn);
+        console.log(ret2);
+   }    
 
+   await db.executeInTransaction(doWork);
+
+   let ret3 =  await db.query("select * from addresses");
+   console.log('end:',ret3);
+   
 }
 
 test();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

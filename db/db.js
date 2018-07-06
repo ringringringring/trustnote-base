@@ -18,16 +18,15 @@ class DataBase {
         this.pool = pool;
     }
 
-    /*
     async executeInTransaction (doWork) {
         let conn =  await this.takeConnectionFromPool();
         await this.query("BEGIN", null, conn);
         let err = await doWork(conn);
-        await this.query(err ? "ROLLBACK" : "COMMIT");
+        await this.query(err ? "ROLLBACK" : "COMMIT", null, conn);
         conn.release();
+        console.log(`connection: ${conn.threadId} is released`)
     }
-    */
-
+    
     query (sqlstr, params, conn ) {
         let resolve;
         const waitPromise = new Promise(r => resolve = r);
@@ -63,8 +62,8 @@ class DataBase {
         })
     }
 
-    addQuery (arr, sqlstr, params ) {
-        arr.push( {sqlstr: sqlstr, params: params} );
+    addQuery (arr, sqlstr, params, conn ) {
+        arr.push( {sqlstr: sqlstr, params: params, conn: conn } );
     }
 
     async exec (arr) {
@@ -74,7 +73,8 @@ class DataBase {
         }
         for (let i = 0; i < arr.length; i ++ ) {
             let item = arr[i];
-            await this.query(item.sqlstr, item.params);
+            console.log(item);
+            await this.query(item.sqlstr, item.params, item.conn);
         }
         return '1'
     }
