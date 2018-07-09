@@ -4,78 +4,88 @@
 const conf = require('../config/constants');
 const log = require('../common/logger');
 var mysql = require('mysql');
-var pool  = mysql.createPool({
-    connectionLimit : conf.database.max_connections,
-    host     : conf.database.host,
-    user     : conf.database.user,
-    password : conf.database.password,
-    charset  : 'UTF8_UNICODE_CI',
-    database : conf.database.name
-});
+
+function queryCallbackToQueryPromise (conn_or_pool) {
+    let fn = conn_or_pool.query;
+    return function () {
+        let last_arg = arguments[arguments.length - 1];
+        let bHasCallback = (typeof last_arg === 'function');
+        if (bHasCallback){ 
+            return fn.apply(conn_or_pool, arguments);
+        }
+        let new_args =  Array.prototype.slice.apply(arguments);
+        let resolve;
+        const waitPromise = new Promise(r => resolve = r);
+        function callback ( err, results, fields ) {
+            if (err) {
+                log.error(`query err: ${err}`);
+                resolve();
+                throw new Error(err);
+            } else  resolve(results);
+        };
+        new_args.push(callback);
+        fn.apply(conn_or_pool, new_args);
+        return waitPromise;
+    }
+}
+
+function createPool () {
+    let pool  = mysql.createPool({
+        connectionLimit : conf.database.max_connections,
+        host     : conf.database.host,
+        user     : conf.database.user,
+        password : conf.database.password,
+        charset  : 'UTF8_UNICODE_CI',
+        database : conf.database.name
+    });
+    return pool;
+}
 
 class DataBase {
 
     constructor() {
-        this.pool = pool;
+        if (!this.pool) {
+             this.pool = createPool();
+        }
+        let query = this.pool.query;
+        this.query = queryCallbackToQueryPromise(this.pool);
     }
 
     async executeInTransaction (doWork) {
         let conn =  await this.takeConnectionFromPool();
-        if (!conn) {
-            log.error('takeConnectionFromPool failed !');
-            return;
-        }
-        await this.query("BEGIN", null, conn);
+        await conn.query("BEGIN");
         let err = await doWork(conn);
-        await this.query(err ? "ROLLBACK" : "COMMIT", null, conn);
-        conn.release();
+        await conn.query(err ? "ROLLBACK" : "COMMIT");
+        await conn.release();
         log.info(`connection: ${conn.threadId} is released`)
     }
     
-    query (sqlstr, params, conn ) {
-        let resolve;
-        const waitPromise = new Promise(r => resolve = r);
-        
-        function callback ( err, results, fields ) {
-            if (err) {
-                log.error(`query err: ${err}`);
-                resolve(err);
-            } else  resolve(results);
-        };
-
-        let conn_or_pool = this.pool;
-        if (conn) {
-            conn_or_pool = conn;
-        };
-
-        if (params) {
-            conn_or_pool.query(sqlstr, params, callback);
-        } else {
-            conn_or_pool.query(sqlstr, callback); 
-        }
-        return waitPromise;
-    }
-
     takeConnectionFromPool () {
         return new Promise ((resolve, reject)=> {
             this.pool.getConnection(function(err, new_connection) {
                 if (err) {
                     log.error('getConnection err:',err);
-                    resolve(null)
+                    resolve();
+                    throw new Error(err);
                     return;
                 };
                 log.info("got connection from pool");
+                new_connection.query = queryCallbackToQueryPromise(new_connection);
                 resolve(new_connection);
             });
         })
     }
 
-    addQuery (arr, sqlstr, params, conn ) {
+    addQuery (arr) {
         if (!Array.isArray(arr)) {
             log.warn('the first param execpted an array');
             return;
         };
-        arr.push( {sqlstr: sqlstr, params: params, conn: conn } );
+        let query_args = [];
+        for (let i=1; i<arguments.length; i++){
+            query_args.push(arguments[i]);
+        }
+        arr.push(query_args);
     }
 
     async exec (arr) {
@@ -84,18 +94,23 @@ class DataBase {
             return;
         }
         for (let i = 0; i < arr.length; i ++ ) {
-            let item = arr[i];
-            await this.query(item.sqlstr, item.params, item.conn);
+            let query_args = arr[i];
+            await this.query.apply(this, query_args);
         }
-        return '1'
+        return 'ok';
     }
 
     getCountUsedConnections (){
         return (this.pool._allConnections.length - this.pool._freeConnections.length);
     };
     
-    close (cb){
-        connection_or_pool.end(cb);
+    async close (cb){
+        return new Promise((resolve, reject) => {
+            this.pool.end(function(err){
+                resolve();
+                if(err) throw new Error(err);
+            });
+        })
     };
     
     addTime (interval){
