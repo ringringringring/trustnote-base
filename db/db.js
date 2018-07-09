@@ -13,7 +13,7 @@ function queryCallbackToQueryPromise (conn_or_pool) {
         if (bHasCallback){ 
             return fn.apply(conn_or_pool, arguments);
         }
-        let new_args =  Array.prototype.slice.apply(arguments);
+        let new_args =  Array.from(arguments);
         let resolve;
         const waitPromise = new Promise(r => resolve = r);
         function callback ( err, results, fields ) {

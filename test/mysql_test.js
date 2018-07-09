@@ -7,13 +7,13 @@ async function test () {
    // let ret =  await db.query("select * from addresses where address=?", ['wuwei']);
    // log.info(ret);
 
-   let arr = [];
-   db.addQuery(arr, "insert into addresses ( address ) values (?)", ['zhangsan']);
-   db.addQuery(arr, "insert into addresses ( address ) values (?)", ['lisi'])
-   db.addQuery(arr, "insert into addresses ( address ) values (?)", ['22222'])
-   db.addQuery(arr, "insert into addresses ( address ) values (?)", ['333333'])
+   // let arr = [];
+   // db.addQuery(arr, "insert into addresses ( address ) values (?)", ['zhangsan']);
+   // db.addQuery(arr, "insert into addresses ( address ) values (?)", ['lisi'])
+   // db.addQuery(arr, "insert into addresses ( address ) values (?)", ['22222'])
+   // db.addQuery(arr, "insert into addresses ( address ) values (?)", ['333333'])
 
-   await db.exec(arr);
+   // await db.exec(arr);
 
    
    // let arr = [];
@@ -28,14 +28,14 @@ async function test () {
    let ret2 =  await db.query("select * from addresses"); 
    log.info(ret2);
    
-   // async function doWork (conn) {
-   //      let ret2 =  await conn.query("insert into addresses ( address ) values (?)",  ['zhangsan1111']);
-   // }    
+   async function doWork (conn) {
+        let ret2 =  await conn.query("insert into addresses ( address ) values (?)",  ['zhangsan1111']);
+   }    
 
-   // await db.executeInTransaction(doWork);
+   await db.executeInTransaction(doWork);
 
-   // let ret3 =  await db.query("select * from addresses");
-   // log.info(ret3);
+   let ret3 =  await db.query("select * from addresses");
+   log.info(ret3);
    
 }
 
