@@ -1,7 +1,7 @@
 /*jslint node: true */
 "use strict";
 
-const conf = require('../config/constants');
+const conf = require('../config/const');
 const log = require('../common/logger');
 var mysql = require('mysql');
 
