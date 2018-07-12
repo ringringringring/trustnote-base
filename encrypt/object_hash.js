@@ -1,10 +1,10 @@
 /*jslint node: true */
 "use strict";
-var crypto = require('crypto');
-var chash = require('./chash.js');
+let crypto = require('crypto');
+let chash = require('./chash.js');
 
 function getSourceString(obj) {
-	var arrComponents = [];
+	let arrComponents = [];
 	function extractComponents(variable){
 		if (variable === null)
 			throw Error("null value in "+JSON.stringify(obj));
@@ -23,20 +23,21 @@ function getSourceString(obj) {
 					if (variable.length === 0)
 						throw Error("empty array in "+JSON.stringify(obj));
 					arrComponents.push('[');
-					for (var i=0; i<variable.length; i++)
-						extractComponents(variable[i]);
+					for (let item of variable){
+						extractComponents(item);
+					}
 					arrComponents.push(']');
 				}
 				else{
 					var keys = Object.keys(variable).sort();
 					if (keys.length === 0)
 						throw Error("empty object in "+JSON.stringify(obj));
-					keys.forEach(function(key){
+					for (let key of keys) {
 						if (typeof variable[key] === "undefined")
 							throw Error("undefined at "+key+" of "+JSON.stringify(obj));
 						arrComponents.push(key);
 						extractComponents(variable[key]);
-					});
+					};
 				}
 				break;
 			default:
@@ -66,7 +67,7 @@ function getBase64Hash(obj) {
 
 
 function getNakedUnit(objUnit){
-	var objNakedUnit = Object.assign({}, objUnit);
+	let objNakedUnit = Object.assign({}, objUnit);
 	delete objNakedUnit.unit;
 	delete objNakedUnit.headers_commission;
 	delete objNakedUnit.payload_commission;
@@ -74,7 +75,7 @@ function getNakedUnit(objUnit){
 	delete objNakedUnit.timestamp;
 	//delete objNakedUnit.last_ball_unit;
 	if (objNakedUnit.messages){
-		for (var i=0; i<objNakedUnit.messages.length; i++){
+		for (let i=0; i<objNakedUnit.messages.length; i++){
 			delete objNakedUnit.messages[i].payload;
 			delete objNakedUnit.messages[i].payload_uri;
 		}
@@ -91,7 +92,7 @@ function getUnitContentHash(objUnit){
 function getUnitHash(objUnit) {
 	if (objUnit.content_hash) // already stripped
 		return getBase64Hash(getNakedUnit(objUnit));
-	var objStrippedUnit = {
+	let objStrippedUnit = {
 		content_hash: getUnitContentHash(objUnit),
 		version: objUnit.version,
 		alt: objUnit.alt,
@@ -110,14 +111,14 @@ function getUnitHash(objUnit) {
 }
 
 function getUnitHashToSign(objUnit) {
-	var objNakedUnit = getNakedUnit(objUnit);
-	for (var i=0; i<objNakedUnit.authors.length; i++)
+	let objNakedUnit = getNakedUnit(objUnit);
+	for (let i=0; i<objNakedUnit.authors.length; i++)
 		delete objNakedUnit.authors[i].authentifiers;
 	return crypto.createHash("sha256").update(getSourceString(objNakedUnit), "utf8").digest();
 }
 
 function getBallHash(unit, arrParentBalls, arrSkiplistBalls, bNonserial) {
-	var objBall = {
+	let objBall = {
 		unit: unit
 	};
 	if (arrParentBalls && arrParentBalls.length > 0)
@@ -152,7 +153,7 @@ function getDeviceAddress(b64_pubkey){
 }
 
 function getDeviceMessageHashToSign(objDeviceMessage) {
-	var objNakedDeviceMessage = Object.assign({}, objDeviceMessage);
+	let objNakedDeviceMessage = Object.assign({}, objDeviceMessage);
 	delete objNakedDeviceMessage.signature;
 	return crypto.createHash("sha256").update(getSourceString(objNakedDeviceMessage), "utf8").digest();
 }
