@@ -1,5 +1,6 @@
 /* jslint node: true */
 
+
 /**
  * A Utility for chash
  * @module chash
