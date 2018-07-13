@@ -10,7 +10,7 @@ const arrRelativeOffsets = PI.split('')
 
 function checkLength(chashLength) {
     if (chashLength !== 160 && chashLength !== 288) {
-        throw `unsupported c-hash length: ${chashLength}`
+        throw Error(`unsupported c-hash length: ${chashLength}`)
     }
 }
 
@@ -22,16 +22,17 @@ function calcOffsets(chashLength) {
 
     for (let i = 0; offset < chashLength; i += 1) {
         const relativeOffset = parseInt(arrRelativeOffsets[i], 10)
-        if (relativeOffset === 0) continue
-        offset += relativeOffset
-        if (chashLength === 288) offset += 4
-        if (offset >= chashLength) break
-        arrOffsets.push(offset)
-        // console.log("index="+index+", offset="+offset);
-        index += 1
+        if (relativeOffset !== 0) {
+            offset += relativeOffset
+            if (chashLength === 288) offset += 4
+            if (offset >= chashLength) break
+            arrOffsets.push(offset)
+            // console.log("index="+index+", offset="+offset);
+            index += 1
+        }
     }
 
-    if (index !== 32) throw 'wrong number of checksum bits'
+    if (index !== 32) throw Error('wrong number of checksum bits')
 
     return arrOffsets
 }
@@ -61,7 +62,7 @@ function separateIntoCleanDataAndChecksum(bin) {
 }
 
 function mixChecksumIntoCleanData(binCleanData, binChecksum) {
-    if (binChecksum.length !== 32) throw 'bad checksum length'
+    if (binChecksum.length !== 32) throw Error('bad checksum length')
     const len = binCleanData.length + binChecksum.length
     let arrOffsets
     if (len === 160) arrOffsets = arrOffsets160
@@ -96,7 +97,7 @@ function buffer2bin(buf) {
 function bin2buffer(bin) {
     const len = bin.length / 8
     // console.log(typeof len)
-    const buf = new Buffer(len)
+    const buf = Buffer.alloc(len)
     // console.log(buf)
     for (let i = 0; i < len; i += 1) buf[i] = parseInt(bin.substr(i * 8, 8), 2)
     return buf
@@ -105,7 +106,11 @@ function bin2buffer(bin) {
 function getChecksum(cleanData) {
     const fullChecksum = crypto.createHash('sha256').update(cleanData).digest()
     // console.log(full_checksum);
-    const checksum = new Buffer([fullChecksum[5], fullChecksum[13], fullChecksum[21], fullChecksum[29]])
+    const checksum = Buffer.from([
+        fullChecksum[5],
+        fullChecksum[13],
+        fullChecksum[21],
+        fullChecksum[29]])
     return checksum
 }
 
@@ -142,9 +147,9 @@ function getChash288(data) {
 function isChashValid(encoded) {
     const encodedLen = encoded.length
     if (encodedLen !== 32 && encodedLen !== 48) { // 160/5 = 32, 288/6 = 48
-        throw `wrong encoded length: ${encodedLen}`
+        throw Error(`wrong encoded length: ${encodedLen}`)
     }
-    const chash = (encodedLen === 32) ? base32.decode(encoded) : new Buffer(encoded, 'base64')
+    const chash = (encodedLen === 32) ? base32.decode(encoded) : Buffer.alloc(encoded, 'base64')
     const binChash = buffer2bin(chash)
     const separated = separateIntoCleanDataAndChecksum(binChash)
     const cleanData = bin2buffer(separated.clean_data)
