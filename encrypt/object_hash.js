@@ -1,8 +1,20 @@
 /* jslint node: true */
 
+/**
+ * Get object chash
+ * @module object_hash
+ */
+
 const crypto = require('crypto')
 const chash = require('./chash.js')
 
+/**
+ * change everthing into string
+ * @function
+ * @private
+ * @param {Object} obj - object or others things
+ * @returns {String} string - string of obj
+ */
 function getSourceString(obj) {
     const arrComponents = []
     function extractComponents(variable) {
@@ -46,10 +58,24 @@ function getSourceString(obj) {
     return arrComponents.join('\x00')
 }
 
+/**
+ * get 160 bits chash
+ * @function
+ * @public
+ * @param {Object} obj - object to be chashed
+ * @returns {String} chash - 160 bits chashed data
+ */
 function getChash160(obj) {
     return chash.getChash160(getSourceString(obj))
 }
 
+/**
+ * get 288 bits chash
+ * @function
+ * @public
+ * @param {Object} obj - object to be chashed
+ * @returns {String} chash - 288 bits chashed data
+ */
 function getChash288(obj) {
     return chash.getChash288(getSourceString(obj))
 }

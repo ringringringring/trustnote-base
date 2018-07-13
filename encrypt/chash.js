@@ -18,8 +18,8 @@ const arrRelativeOffsets = PI.split('')
  * check if chash length is 160 or 288
  * @function
  * @private
- * @param {number} chashLength - chash length, 160 or 288
- * @throws {object} Error - error message: unsupported c-hash length: ${chashLength}
+ * @param {Number} chashLength - chash length, 160 or 288
+ * @throws {Object} Error - error message: unsupported c-hash length: ${chashLength}
  */
 function checkLength(chashLength) {
     if (chashLength !== 160 && chashLength !== 288) {
@@ -31,9 +31,9 @@ function checkLength(chashLength) {
  * calculate offset of chash
  * @function
  * @private
- * @param {number} chashLength - chash length
- * @returns {array} arrOffsets - array of offsets index
- * @throws {object} Error - if index is not 32 error message: 'wrong number of checksum bits'
+ * @param {Number} chashLength - chash length
+ * @returns {Array} arrOffsets - Array of offsets index
+ * @throws {Object} Error - if index is not 32 error message: 'wrong Number of checksum bits'
  */
 function calcOffsets(chashLength) {
     checkLength(chashLength)
@@ -53,7 +53,7 @@ function calcOffsets(chashLength) {
         }
     }
 
-    if (index !== 32) throw Error('wrong number of checksum bits')
+    if (index !== 32) throw Error('wrong Number of checksum bits')
 
     return arrOffsets
 }
@@ -65,8 +65,8 @@ const arrOffsets288 = calcOffsets(288)
  * separate into clean data and checksum
  * @function
  * @private
- * @param {array} bin - binary data include clean data and checksum
- * @returns {object} result - include clean datan and checksum
+ * @param {Array} bin - binary data include clean data and checksum
+ * @returns {Object} result - include clean datan and checksum
  */
 function separateIntoCleanDataAndChecksum(bin) {
     const len = bin.length
@@ -93,9 +93,9 @@ function separateIntoCleanDataAndChecksum(bin) {
  * mix clean data with checksum
  * @function
  * @private
- * @param {string} binCleanData - clean data without checksum
- * @param {array} binChecksum - chechsum
- * @returns {string} data - data mixed by clean data and checksum
+ * @param {String} binCleanData - clean data without checksum
+ * @param {Array} binChecksum - chechsum
+ * @returns {String} data - data mixed by clean data and checksum
  */
 function mixChecksumIntoCleanData(binCleanData, binChecksum) {
     if (binChecksum.length !== 32) throw Error('bad checksum length')
@@ -122,8 +122,8 @@ function mixChecksumIntoCleanData(binCleanData, binChecksum) {
  * buffer to binary
  * @function
  * @private
- * @param {array} buf - buffer array
- * @returns {string} bin - binary string
+ * @param {Array} buf - buffer Array
+ * @returns {String} bin - binary String
  */
 function buffer2bin(buf) {
     const bytes = []
@@ -141,8 +141,8 @@ function buffer2bin(buf) {
  * binary to buffer
  * @function
  * @private
- * @param {string} bin - binary string
- * @returns {array} buffer - buffer array
+ * @param {String} bin - binary String
+ * @returns {Array} buffer - buffer Array
  */
 function bin2buffer(bin) {
     const len = bin.length / 8
@@ -157,8 +157,8 @@ function bin2buffer(bin) {
  * get check sum
  * @function
  * @private
- * @param {string} cleanData - clean data without checksum
- * @returns {array} checksum - checksum of clean data
+ * @param {String} cleanData - clean data without checksum
+ * @returns {Array} checksum - checksum of clean data
  */
 function getChecksum(cleanData) {
     const fullChecksum = crypto.createHash('sha256').update(cleanData).digest()
@@ -176,8 +176,8 @@ function getChecksum(cleanData) {
  * @function
  * @private
  * @param {any} data - date that need to be chashed
- * @param {number} chashLength - length of chash result
- * @returns {string} chash - chashed data
+ * @param {Number} chashLength - length of chash result
+ * @returns {String} chash - chashed data
  */
 function getChash(data, chashLength) {
     // console.log("getChash: "+data);
@@ -206,7 +206,7 @@ function getChash(data, chashLength) {
  * @function
  * @public
  * @param {any} data - data to be chashed
- * @returns {string} chash - 160 bits chashed data
+ * @returns {String} chash - 160 bits chashed data
  */
 function getChash160(data) {
     return getChash(data, 160)
@@ -217,7 +217,7 @@ function getChash160(data) {
  * @function
  * @public
  * @param {any} data - data to be chashed
- * @returns {string} chash - 288 bits chashed data
+ * @returns {String} chash - 288 bits chashed data
  */
 function getChash288(data) {
     return getChash(data, 288)
@@ -227,9 +227,9 @@ function getChash288(data) {
  * validate if the encoded is a valid chash message
  * @function
  * @public
- * @param {string} encoded - chashed message
+ * @param {String} encoded - chashed message
  * @returns {boolean} true/false - if it's valid return true or false
- * @throws {object} Error - if throw error if length if not 32 or 48
+ * @throws {Object} Error - if throw error if length if not 32 or 48
  */
 function isChashValid(encoded) {
     const encodedLen = encoded.length
