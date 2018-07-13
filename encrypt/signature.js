@@ -12,9 +12,9 @@ const ecdsa = require('secp256k1')
  * Signature function
  * @function
  * @instance
- * @param {string} hash - hash of text to sign
- * @param {string} priv_key - private key
- * @return {string} return signature result in base64
+ * @param {String} hash - hash of text to sign
+ * @param {String} priv_key - private key
+ * @return {String} return signature result in base64
  */
 function sign(hash, privKey) {
     const res = ecdsa.sign(hash, privKey)
@@ -25,10 +25,10 @@ function sign(hash, privKey) {
  * Validate Signature function
  * @function
  * @instance
- * @param {string} hash - hash of text to sign
- * @param {string} b64Sig - signature result in base64
- * @param {string} b64PubKey - public key in base64
- * @return {string} return signature result
+ * @param {String} hash - hash of text to sign
+ * @param {String} b64Sig - signature result in base64
+ * @param {String} b64PubKey - public key in base64
+ * @return {String} return signature result
  */
 function verify(hash, b64Sig, b64PubKey) {
     try {
