@@ -1,12 +1,12 @@
 /*jslint node: true */
 "use strict";
-var crypto = require('crypto');
-var base32 = require('thirty-two');
+let crypto = require('crypto');
+let base32 = require('thirty-two');
 
-var PI = "1451369234883381050283968485892027449493";
-var zeroString = "00000000";
+const PI = "1451369234883381050283968485892027449493"; //Soldner Constant
+const zeroString = "00000000";
 
-var arrRelativeOffsets = PI.split("");
+const arrRelativeOffsets = PI.split("");
 
 function checkLength(chash_length){
 	if (chash_length !== 160 && chash_length !== 288)
@@ -15,12 +15,12 @@ function checkLength(chash_length){
 
 function calcOffsets(chash_length){
 	checkLength(chash_length);
-	var arrOffsets = [];
-	var offset = 0;
-	var index = 0;
+	let arrOffsets = [];
+	let offset = 0;
+	let index = 0;
 
-	for (var i=0; offset<chash_length; i++){
-		var relative_offset = parseInt(arrRelativeOffsets[i]);
+	for (let i=0; offset<chash_length; i++){
+		let relative_offset = parseInt(arrRelativeOffsets[i]);
 		if (relative_offset === 0)
 			continue;
 		offset += relative_offset;
@@ -39,22 +39,22 @@ function calcOffsets(chash_length){
 	return arrOffsets;
 }
 
-var arrOffsets160 = calcOffsets(160);
-var arrOffsets288 = calcOffsets(288);
+let arrOffsets160 = calcOffsets(160);
+let arrOffsets288 = calcOffsets(288);
 
 function separateIntoCleanDataAndChecksum(bin){
-	var len = bin.length;
-	var arrOffsets;
+	let len = bin.length;
+	let arrOffsets;
 	if (len === 160)
 		arrOffsets = arrOffsets160;
 	else if (len === 288)
 		arrOffsets = arrOffsets288;
 	else
 		throw Error("bad length="+len+", bin = "+bin);
-	var arrFrags = [];
-	var arrChecksumBits = [];
-	var start = 0;
-	for (var i=0; i<arrOffsets.length; i++){
+	let arrFrags = [];
+	let arrChecksumBits = [];
+	let start = 0;
+	for (let i=0; i<arrOffsets.length; i++){
 		arrFrags.push(bin.substring(start, arrOffsets[i]));
 		arrChecksumBits.push(bin.substr(arrOffsets[i], 1));
 		start = arrOffsets[i]+1;
@@ -62,27 +62,27 @@ function separateIntoCleanDataAndChecksum(bin){
 	// add last frag
 	if (start < bin.length)
 		arrFrags.push(bin.substring(start));
-	var binCleanData = arrFrags.join("");
-	var binChecksum = arrChecksumBits.join("");
+	let binCleanData = arrFrags.join("");
+	let binChecksum = arrChecksumBits.join("");
 	return {clean_data: binCleanData, checksum: binChecksum};
 }
 
 function mixChecksumIntoCleanData(binCleanData, binChecksum){
 	if (binChecksum.length !== 32)
 		throw "bad checksum length";
-	var len = binCleanData.length + binChecksum.length;
-	var arrOffsets;
+	let len = binCleanData.length + binChecksum.length;
+	let arrOffsets;
 	if (len === 160)
 		arrOffsets = arrOffsets160;
 	else if (len === 288)
 		arrOffsets = arrOffsets288;
 	else
 		throw Error("bad length="+len+", clean data = "+binCleanData+", checksum = "+binChecksum);
-	var arrFrags = [];
-	var arrChecksumBits = binChecksum.split("");
-	var start = 0;
-	for (var i=0; i<arrOffsets.length; i++){
-		var end = arrOffsets[i] - i;
+	let arrFrags = [];
+	let arrChecksumBits = binChecksum.split("");
+	let start = 0;
+	for (let i=0; i<arrOffsets.length; i++){
+		let end = arrOffsets[i] - i;
 		arrFrags.push(binCleanData.substring(start, end));
 		arrFrags.push(arrChecksumBits[i]);
 		start = end;
@@ -94,9 +94,9 @@ function mixChecksumIntoCleanData(binCleanData, binChecksum){
 }
 
 function buffer2bin(buf){
-	var bytes = [];
-	for (var i=0; i<buf.length; i++){
-		var bin = buf[i].toString(2);
+	let bytes = [];
+	for (let i=0; i<buf.length; i++){
+		let bin = buf[i].toString(2);
 		if (bin.length < 8) // pad with zeros
 			bin = zeroString.substring(bin.length, 8) + bin;
 		bytes.push(bin);
@@ -105,38 +105,38 @@ function buffer2bin(buf){
 }
 
 function bin2buffer(bin){
-	var len = bin.length/8;
-	var buf = new Buffer(len);
-	for (var i=0; i<len; i++)
+	let len = bin.length/8;
+	let buf = new Buffer(len);
+	for (let i=0; i<len; i++)
 		buf[i] = parseInt(bin.substr(i*8, 8), 2);
 	return buf;
 }
 
 function getChecksum(clean_data){
-	var full_checksum = crypto.createHash("sha256").update(clean_data).digest();
+	let full_checksum = crypto.createHash("sha256").update(clean_data).digest();
 	//console.log(full_checksum);
-	var checksum = new Buffer([full_checksum[5], full_checksum[13], full_checksum[21], full_checksum[29]]);
+	let checksum = new Buffer([full_checksum[5], full_checksum[13], full_checksum[21], full_checksum[29]]);
 	return checksum;
 }
 
 function getChash(data, chash_length){
 	//console.log("getChash: "+data);
 	checkLength(chash_length);
-	var hash = crypto.createHash((chash_length === 160) ? "ripemd160" : "sha256").update(data, "utf8").digest();
+	let hash = crypto.createHash((chash_length === 160) ? "ripemd160" : "sha256").update(data, "utf8").digest();
 	//console.log("hash", hash);
-	var truncated_hash = (chash_length === 160) ? hash.slice(4) : hash; // drop first 4 bytes if 160
+	let truncated_hash = (chash_length === 160) ? hash.slice(4) : hash; // drop first 4 bytes if 160
 	//console.log("clean data", truncated_hash);
-	var checksum = getChecksum(truncated_hash);
+	let checksum = getChecksum(truncated_hash);
 	//console.log("checksum", checksum);
 	//console.log("checksum", buffer2bin(checksum));
 	
-	var binCleanData = buffer2bin(truncated_hash);
-	var binChecksum = buffer2bin(checksum);
-	var binChash = mixChecksumIntoCleanData(binCleanData, binChecksum);
+	let binCleanData = buffer2bin(truncated_hash);
+	let binChecksum = buffer2bin(checksum);
+	let binChash = mixChecksumIntoCleanData(binCleanData, binChecksum);
 	//console.log(binCleanData.length, binChecksum.length, binChash.length);
-	var chash = bin2buffer(binChash);
+	let chash = bin2buffer(binChash);
 	//console.log("chash     ", chash);
-	var encoded = (chash_length === 160) ? base32.encode(chash).toString() : chash.toString('base64');
+	let encoded = (chash_length === 160) ? base32.encode(chash).toString() : chash.toString('base64');
 	//console.log(encoded);
 	return encoded;
 }
@@ -150,15 +150,15 @@ function getChash288(data){
 }
 
 function isChashValid(encoded){
-	var encoded_len = encoded.length;
+	let encoded_len = encoded.length;
 	if (encoded_len !== 32 && encoded_len !== 48) // 160/5 = 32, 288/6 = 48
 		throw "wrong encoded length: "+encoded_len;
-	var chash = (encoded_len === 32) ? base32.decode(encoded) : new Buffer(encoded, 'base64');
-	var binChash = buffer2bin(chash);
-	var separated = separateIntoCleanDataAndChecksum(binChash);
-	var clean_data = bin2buffer(separated.clean_data);
+	let chash = (encoded_len === 32) ? base32.decode(encoded) : new Buffer(encoded, 'base64');
+	let binChash = buffer2bin(chash);
+	let separated = separateIntoCleanDataAndChecksum(binChash);
+	let clean_data = bin2buffer(separated.clean_data);
 	//console.log("clean data", clean_data);
-	var checksum = bin2buffer(separated.checksum);
+	let checksum = bin2buffer(separated.checksum);
 	// console.log(checksum);
 	// console.log(getChecksum(clean_data));
 	return checksum.equals(getChecksum(clean_data));
