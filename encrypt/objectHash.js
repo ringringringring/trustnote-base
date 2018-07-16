@@ -14,6 +14,7 @@ const chash = require('./chash.js')
  * @private
  * @param {Object} obj - object or others things
  * @returns {String} string - string of obj
+ * @throws {Obejct} Error
  */
 function getSourceString(obj) {
     const arrComponents = []
