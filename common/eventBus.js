@@ -1,10 +1,8 @@
-/*jslint node: true */
-"use strict";
-require('./singleton.js');
+/* jslint node: true */
 
-var EventEmitter = require('events').EventEmitter;
+require('./singleton.js')
 
-var eventEmitter = new EventEmitter();
-eventEmitter.setMaxListeners(20);
+const { EventEmitter } = require('events')
 
-module.exports = eventEmitter;
+const eventEmitter = new EventEmitter()
+eventEmitter.setMaxListeners(20)
