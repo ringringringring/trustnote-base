@@ -100,8 +100,7 @@ CREATE TABLE round_attestors (
 	round_index BIGINT NOT NULL,
 	address CHAR(32) NOT NULL,
 	PRIMARY KEY (round_index, address),
-	KEY byAddress(address), -- no foreign key as the address might not be used yet
-	FOREIGN KEY (unit) REFERENCES units(unit)
+	KEY byAddress(address)     -- no foreign key as the address might not be used yet
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4  COLLATE=utf8mb4_unicode_ci;
 
 
@@ -260,7 +259,6 @@ CREATE TABLE inputs (
 	UNIQUE KEY bySrcOutput(src_unit, src_message_index, src_output_index, is_unique), -- UNIQUE guarantees there'll be no double spend for type=transfer
 	UNIQUE KEY byAssetDenominationSerialAddress(asset, denomination, serial_number, address, is_unique), -- UNIQUE guarantees there'll be no double issue
 	KEY byAssetType(asset, type),
-	KEY byAddressTypeToMci(address, type, to_main_chain_index),
 	FOREIGN KEY (unit) REFERENCES units(unit),
 	CONSTRAINT inputsBySrcUnit FOREIGN KEY (src_unit) REFERENCES units(unit),
 	CONSTRAINT inputsByAddress FOREIGN KEY (address) REFERENCES addresses(address),
@@ -583,7 +581,7 @@ CREATE TABLE watched_light_units (
 
 CREATE TABLE bots (
 	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	rank INTEGER NOT NULL DEFAULT 0,
+	ranks INTEGER NOT NULL DEFAULT 0,
 	name VARCHAR(100) NOT NULL UNIQUE,
 	pairing_code VARCHAR(200) NOT NULL,
 	description LONGTEXT NOT NULL
