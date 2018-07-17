@@ -2,12 +2,22 @@
 
 const objectHash = require('../encrypt/objectHash.js')
 
+const conf = {}
+const network = {}
+const eventBus = {}
 const db = {}
 const definition = {}
 const validationUtils = {}
 const device = {}
 
 const MAX_INT32 = (2 ** 31) - 1
+
+function sendNewSharedAddress(deviceAddress, address, arrDefinition,
+    assocSignersByPath, bForwarded) {
+    device.sendMessageToDevice(deviceAddress, 'new_shared_address', {
+        address, definition: arrDefinition, signers: assocSignersByPath, forwarded: bForwarded,
+    })
+}
 
 function includesMyDeviceAddress(assocSignersByPath) {
     Object.values(assocSignersByPath).forEach((signerInfo) => {
@@ -66,8 +76,30 @@ function validateAddressDefinition(arrDefinition) {
     })
 }
 
-function addNewSharedAddress(address, arrDefinition, assocSignersByPath, bForwarded, onDone) {
-    return new Promise((resolve, reject) => {
+function forwardNewSharedAddressToCosignersOfMyMemberAddresses(address,
+    arrDefinition, assocSignersByPath) {
+    const assocMyMemberAddresses = {}
+    Object.values(assocSignersByPath).forEach((signerInfo) => {
+        if (signerInfo.device_address === device.getMyDeviceAddress() && signerInfo.address) {
+            assocMyMemberAddresses[signerInfo.address] = true
+        }
+    })
+    const arrMyMemberAddresses = Object.keys(assocMyMemberAddresses)
+    if (arrMyMemberAddresses.length === 0) throw Error('my member addresses not found')
+    db.query(
+        'SELECT DISTINCT device_address FROM my_addresses JOIN wallet_signing_paths USING(wallet) WHERE address IN(?) AND device_address!=?',
+        [arrMyMemberAddresses, device.getMyDeviceAddress()],
+        (rows) => {
+            rows.forEach((row) => {
+                sendNewSharedAddress(row.device_address, address,
+                    arrDefinition, assocSignersByPath, true)
+            })
+        },
+    )
+}
+
+function addNewSharedAddress(address, arrDefinition, assocSignersByPath) {
+    return new Promise((resolve) => {
         db.query(
             `INSERT ${db.getIgnore()} INTO shared_addresses (shared_address, definition) VALUES (?,?)`,
             [address, JSON.stringify(arrDefinition)],
@@ -81,18 +113,7 @@ function addNewSharedAddress(address, arrDefinition, assocSignersByPath, bForwar
                         [address, signerInfo.address, signingPath,
                             signerInfo.member_signing_path, signerInfo.device_address])
                 })
-                arrQueries.forEach(() => {
-                    console.log(`added new shared address ${address}`)
-                    eventBus.emit(`new_address-${address}`)
-                    if (conf.bLight) {
-                        network.addLightWatchedAddress(address)
-                    }
-                    if (!bForwarded) {
-                        forwardNewSharedAddressToCosignersOfMyMemberAddresses(address,
-                            arrDefinition, assocSignersByPath)
-                    }
-                    if (onDone) onDone()
-                })
+                resolve(arrQueries)
             },
         )
     })
@@ -110,8 +131,29 @@ async function createNewSharedAddress(arrDefinition, assocSignersByPath) {
     })
     await determineIfIncludesMe(body.signers)
     await validateAddressDefinition(body.definition)
-    await addNewSharedAddress(body.address, body.definition,
+    const arrQueries = await addNewSharedAddress(body.address, body.definition,
         body.signers, body.forward)
+    arrQueries.forEach(() => {
+        console.log(`added new shared address ${address}`)
+        eventBus.emit(`new_address-${address}`)
+        if (conf.bLight) {
+            network.addLightWatchedAddress(address)
+        }
+        if (!body.forward) {
+            forwardNewSharedAddressToCosignersOfMyMemberAddresses(address,
+                arrDefinition, assocSignersByPath)
+        }
+        const arrDeviceAddresses = []
+        Object.values(assocSignersByPath).forEach((signerInfo) => {
+            if (signerInfo.device_address !== device.getMyDeviceAddress()
+                && arrDeviceAddresses.indexOf(signerInfo.device_address) === -1) {
+                arrDeviceAddresses.push(signerInfo.device_address)
+            }
+        })
+        arrDeviceAddresses.forEach((deviceAddress) => {
+            sendNewSharedAddress(deviceAddress, address, arrDefinition, assocSignersByPath)
+        })
+    })
 }
 
 exports.createNewSharedAddress = createNewSharedAddress
