@@ -249,6 +249,14 @@ function isChashValid(encoded) {
     return checksum.equals(getChecksum(cleanData))
 }
 
+/**
+ * calculate offset of chash -- old
+ * @function
+ * @private
+ * @param {Number} chashLength - chash length
+ * @returns {Array} arrOffsets - Array of offsets index
+ * @throws {Object} Error - if index is not 32 error message: 'wrong Number of checksum bits'
+ */
 function calcOffsetsOld(chashLength) {
     checkLength(chashLength)
     const arrOffsets = []
@@ -272,6 +280,13 @@ function calcOffsetsOld(chashLength) {
     return arrOffsets
 }
 
+/**
+ * separate into clean data and checksum -- old
+ * @function
+ * @private
+ * @param {Array} bin - binary data include clean data and checksum
+ * @returns {Object} result - include clean datan and checksum
+ */
 function separateIntoCleanDataAndChecksumOld(bin) {
     const len = bin.length
     let arrOffsets
@@ -293,6 +308,11 @@ function separateIntoCleanDataAndChecksumOld(bin) {
     return { cleanData: binCleanData, checksum: binChecksum }
 }
 
+/**
+ * change old address into new address
+ * @param {String} address - old address
+ * @returns {String} encoded - new address
+ */
 function changeOldAddressToNewAddress(address) {
     const addressLen = address.length
     const chashLength = 160
