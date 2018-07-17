@@ -9,10 +9,12 @@
 const crypto = require('crypto')
 const base32 = require('thirty-two')
 
-const PI = '1451369234883381050283968485892027449493' // Soldner Constant
+const Soldner = '1451369234883381050283968485892027449493' // Soldner Constant
+const PI = '14159265358979323846264338327950288419716939937510'
 const zeroString = '00000000'
 
-const arrRelativeOffsets = PI.split('')
+const arrRelativeOffsetsOld = PI.split('')
+const arrRelativeOffsets = Soldner.split('')
 
 /**
  * check if chash length is 160 or 288
@@ -86,7 +88,7 @@ function separateIntoCleanDataAndChecksum(bin) {
     if (start < bin.length) arrFrags.push(bin.substring(start))
     const binCleanData = arrFrags.join('')
     const binChecksum = arrChecksumBits.join('')
-    return { clean_data: binCleanData, checksum: binChecksum }
+    return { cleanData: binCleanData, checksum: binChecksum }
 }
 
 /**
@@ -239,7 +241,7 @@ function isChashValid(encoded) {
     const chash = (encodedLen === 32) ? base32.decode(encoded) : Buffer.alloc(encoded, 'base64')
     const binChash = buffer2bin(chash)
     const separated = separateIntoCleanDataAndChecksum(binChash)
-    const cleanData = bin2buffer(separated.clean_data)
+    const cleanData = bin2buffer(separated.cleanData)
     // console.log("clean data", clean_data);
     const checksum = bin2buffer(separated.checksum)
     // console.log(checksum);
@@ -247,7 +249,69 @@ function isChashValid(encoded) {
     return checksum.equals(getChecksum(cleanData))
 }
 
+function calcOffsetsOld(chashLength) {
+    checkLength(chashLength)
+    const arrOffsets = []
+    let offset = 0
+    let index = 0
+
+    for (let i = 0; offset < chashLength; i += 1) {
+        const relativeOffset = parseInt(arrRelativeOffsetsOld[i], 10)
+        if (relativeOffset !== 0) {
+            offset += relativeOffset
+            if (chashLength === 288) offset += 4
+            if (offset >= chashLength) break
+            arrOffsets.push(offset)
+            // console.log("index="+index+", offset="+offset);
+            index += 1
+        }
+    }
+
+    if (index !== 32) throw Error('wrong Number of checksum bits')
+
+    return arrOffsets
+}
+
+function separateIntoCleanDataAndChecksumOld(bin) {
+    const len = bin.length
+    let arrOffsets
+    if (len === 160) arrOffsets = calcOffsetsOld(160)
+    else if (len === 288) arrOffsets = calcOffsetsOld(288)
+    else throw Error(`bad length=${len}, bin = ${bin}`)
+    const arrFrags = []
+    const arrChecksumBits = []
+    let start = 0
+    for (let i = 0; i < arrOffsets.length; i += 1) {
+        arrFrags.push(bin.substring(start, arrOffsets[i]))
+        arrChecksumBits.push(bin.substr(arrOffsets[i], 1))
+        start = arrOffsets[i] + 1
+    }
+    // add last frag
+    if (start < bin.length) arrFrags.push(bin.substring(start))
+    const binCleanData = arrFrags.join('')
+    const binChecksum = arrChecksumBits.join('')
+    return { cleanData: binCleanData, checksum: binChecksum }
+}
+
+function changeOldAddressToNewAddress(address) {
+    const addressLen = address.length
+    const chashLength = 160
+    if (addressLen !== 32 && addressLen !== 48) {
+        throw Error(`wrong encoded length: ${addressLen}`)
+    }
+    let chash = (addressLen === 32) ? base32.decode(address) : Buffer.alloc(address, 'base64')
+    const binChash = buffer2bin(chash)
+    const separated = separateIntoCleanDataAndChecksumOld(binChash)
+    const { cleanData, checksum } = separated
+    chash = bin2buffer(mixChecksumIntoCleanData(cleanData, checksum))
+    // console.log("chash     ", chash);
+    const encoded = (chashLength === 160) ? base32.encode(chash).toString() : chash.toString('base64')
+    // console.log(encoded);
+    return encoded
+}
+
 
 exports.getChash160 = getChash160
 exports.getChash288 = getChash288
 exports.isChashValid = isChashValid
+exports.changeOldAddressToNewAddress = changeOldAddressToNewAddress
