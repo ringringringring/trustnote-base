@@ -1,8 +1,10 @@
 /* jslint node: true */
 
 const log4js = require('log4js')
+const path = require('path');
+const p = path.resolve(__dirname, '../config/log.json');
 
-log4js.configure('./config/log.json')
+log4js.configure(p);
 const logger = log4js.getLogger('trustnote')
 
 /**
