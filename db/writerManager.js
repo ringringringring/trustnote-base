@@ -7,7 +7,7 @@ const dataBase = require('./db.js')
 let instance = null;
 function getInstance() {
     if (!instance) {
-        instance = new dataBase.DataBase(conf.databaseReader);
+        instance = new dataBase.DataBase(conf.databaseWriter);
     }
     return instance;
 }
@@ -15,11 +15,12 @@ function getInstance() {
 module.exports =  {
     getInstance,
 };
+
 // async function test(){
 //     console.log("start");
 //     const inst = getInstance();
-//     const con = await inst.takeConnectionFromPool();
-//     console.log("got con ",con);
+//     // const con = await inst.takeConnectionFromPool();
+//     // console.log("got con ",con);
 //     const ret=await inst.query('select * from addresses');
 //     console.log("done",ret);
 // }
