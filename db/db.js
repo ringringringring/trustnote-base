@@ -29,23 +29,23 @@ function queryCallbackToQueryPromise (conn_or_pool) {
     }
 }
 
-function createPool () {
+function createPool ({max_connections,host,database,user,password}) {
     let pool  = mysql.createPool({
-        connectionLimit : conf.database.max_connections,
-        host     : conf.database.host,
-        user     : conf.database.user,
-        password : conf.database.password,
-        charset  : 'UTF8_UNICODE_CI',
-        database : conf.database.name
+        connectionLimit : max_connections,
+        host     : host,
+        database : database,
+        user     : user,
+        password : password,
+        charset  : 'utf8mb4_unicode_ci'
     });
     return pool;
 }
 
 class DataBase {
 
-    constructor() {
+    constructor({max_connections,host,database,user,password}) {
         if (!this.pool) {
-             this.pool = createPool();
+             this.pool = createPool({max_connections,host,database,user,password});
         }
         let query = this.pool.query;
         this.query = queryCallbackToQueryPromise(this.pool);
@@ -146,4 +146,6 @@ class DataBase {
     };
 }
 
-module.exports = new DataBase();
+module.exports =  {
+    DataBase,
+};

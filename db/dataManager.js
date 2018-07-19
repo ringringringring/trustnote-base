@@ -1,34 +1,22 @@
-'use strict'
+const readManager = require('./readManager')
+const writerManager = require('./writerManager')
 
-var ReadManager = require('./readManager');
-var WriteManager = require('./writeManager');
-
-const readconfig = {
-    max_connections : 30,
-    host : 'localhost',
-    name : 'trustnote',
-    user : 'root',
-    password: '123'
+async function getAllUnits() {
+    const inst = readManager.getInstance();
+    const units = await inst.query('select * from units');
+    return units;
 }
 
-const writeconfig = {
-    max_connections : 30,
-    host : 'localhost',
-    name : 'trustnote',
-    user : 'root',
-    password: '123'
+async function addNewAddress(addr) {
+    const inst = writerManager.getInstance();
+    const units = await inst.query(`insert into addresses (address) value (${addr})`);
+    return units;
 }
 
-const readManager =  new ReadManager(readconfig);
-const writeManager = new WriteManager(writeconfig);
-
-
+// test purpose
+//getAllUnits();
+//addNewAddress('VIFOO3NSQURCHCPNV2TIHYR5E5JETJO9');
 module.exports = {
-    getWalletByWalletId: getWalletByWalletId,
-    getUnitByUnitHash: getUnitByUnitHash
+    getAllUnits,
+    addNewAddress,
 }
-
-
-
-
-
