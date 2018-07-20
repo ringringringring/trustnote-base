@@ -2,7 +2,6 @@
 
 const constant = require('../config/const');
 const dagre = require('dagre');
-// const GENESIS_UNIT = constant.GENESIS_UNIT;
 
 
 class Dag {
@@ -32,12 +31,12 @@ class Dag {
         let levels = [];
         for ( let parentUnit of unit.parents ) {
             this.dag.setEdge(unit.unit, parentUnit);  
-            let level = this.level.get(parentUnit);
-            levels.push(level.unitlevel);
+            // let level = this.level.get(parentUnit);
+            // levels.push(level.unitlevel);
         }
-        //其父单元中最大的单元level
-        let maxlevel = Math.max(...levels);
-        this.level.set(unit.unit, { unitlevel: maxlevel + 1});
+        // //其父单元中最大的单元level
+        // let maxlevel = Math.max(...levels);
+        // this.level.set(unit.unit, { unitlevel: maxlevel + 1});
     }
 
     levelInfo (unit) {
@@ -70,9 +69,9 @@ class Dag {
 }
 
 let dag = null;
-function getInstance (GENESIS_UNIT) {
+function getInstance () {
     if (!dag) {
-        dag = new Dag(GENESIS_UNIT);
+        dag = new Dag();
     }
     return dag;
 }
