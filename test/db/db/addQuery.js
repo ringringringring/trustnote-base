@@ -1,5 +1,3 @@
-/* eslint linebreak-style: ["error", "windows"] */
-
 // Replace this with your target module file.
 
 const mocha = require('mocha');

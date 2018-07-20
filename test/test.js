@@ -1,5 +1,3 @@
-/* eslint linebreak-style: ["error", "windows"] */
-
 // This is the test example file, you can get and add examples if you need.
 
 const mocha = require('mocha');
