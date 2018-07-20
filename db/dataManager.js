@@ -1,5 +1,5 @@
-const readManager = require('./readManager')
-const writerManager = require('./writerManager')
+const readManager = require('./readManager');
+const writerManager = require('./writerManager');
 
 async function getAllUnits() {
     const inst = readManager.getInstance();
@@ -14,9 +14,9 @@ async function addNewAddress(addr) {
 }
 
 // test purpose
-//getAllUnits();
-//addNewAddress('VIFOO3NSQURCHCPNV2TIHYR5E5JETJO9');
+// getAllUnits();
+// addNewAddress('VIFOO3NSQURCHCPNV2TIHYR5E5JETJO9');
 module.exports = {
     getAllUnits,
     addNewAddress,
-}
+};

@@ -1,8 +1,8 @@
 
 /* jslint node: true */
 
-const conf = require('../config/conf')
-const dataBase = require('./db.js')
+const conf = require('../config/conf');
+const dataBase = require('./db.js');
 
 let instance = null;
 function getInstance() {
@@ -12,7 +12,7 @@ function getInstance() {
     return instance;
 }
 
-module.exports =  {
+module.exports = {
     getInstance,
 };
 // async function test(){
