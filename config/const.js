@@ -1,15 +1,4 @@
-'use strict'
-
-const database = {
-    max_connections : 30,
-    host : 'localhost',
-    name : 'trustnote',
-    user : 'root',
-    password: '123'
-}
 
 
 
-module.exports = { 
-    database: database
-}
+exports.GENESIS_UNIT = 'rg1RzwKwnfRHjBojGol3gZaC5w7kR++rOR6O61JRsrQ=';
