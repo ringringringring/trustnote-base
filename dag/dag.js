@@ -52,9 +52,9 @@ class Dag {
 
     /*
     *
-    * reture {Array} GENESIS_UNIT
+    * reture {Array} ROOT_UNIT
     */
-    genesisUnit () {
+    rootUnit () {
         return this.dag.sinks();
     }
 
