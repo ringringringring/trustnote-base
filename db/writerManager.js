@@ -1,20 +1,19 @@
-
 /* jslint node: true */
 
-const conf = require('../config/conf')
-const dataBase = require('./db.js')
+const conf = require('../config/conf');
+const dataBase = require('./db.js');
 
 let instance = null
 function getInstance() {
     if (!instance) {
-        instance = new dataBase.DataBase(conf.databaseWriter)
+        instance = new dataBase.DataBase(conf.databaseWriter);
     }
-    return instance
+    return instance;
 }
 
 module.exports = {
     getInstance,
-}
+};
 
 // async function test(){
 //     console.log("start");
