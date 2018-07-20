@@ -4,17 +4,17 @@
 const conf = require('../config/conf');
 const dataBase = require('./db.js');
 
-let instance = null;
+let instance = null
 function getInstance() {
     if (!instance) {
-        instance = new dataBase.DataBase(conf.databaseReader);
+        instance = new dataBase.DataBase(conf.databaseReader)
     }
-    return instance;
+    return instance
 }
 
 module.exports = {
     getInstance,
-};
+}
 // async function test(){
 //     console.log("start");
 //     const inst = getInstance();
