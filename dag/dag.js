@@ -5,11 +5,10 @@ const dagre = require('dagre');
 
 
 class Dag {
-    constructor (GENESIS_UNIT) {
+    constructor (ROOT_UNIT) {
         if (!this.dag) {
-            this.level = new Map();
             this.dag = this.initdag();
-            // this.setGenesisUnit(GENESIS_UNIT);
+            this.setRootUnit(ROOT_UNIT);
         }
     }
 
@@ -21,26 +20,19 @@ class Dag {
         return g
     }
 
-    setGenesisUnit(unit) {
+    setRootUnit(unit) {
         this.dag.setNode(unit.unit, unit);
-        this.level.set(unit.unit, { unitlevel: 0 });
     }
 
     addUnit(unit) {
         this.dag.setNode(unit.unit, unit);
-        let levels = [];
-        for ( let parentUnit of unit.parents ) {
+        for ( let parentUnit of unit.parent_units ) {
             this.dag.setEdge(unit.unit, parentUnit);  
-            // let level = this.level.get(parentUnit);
-            // levels.push(level.unitlevel);
         }
-        // //其父单元中最大的单元level
-        // let maxlevel = Math.max(...levels);
-        // this.level.set(unit.unit, { unitlevel: maxlevel + 1});
     }
 
-    levelInfo (unit) {
-        return this.level.get(unit.unit);
+    unit (unit) {
+        return this.dag.node(unit.unit);
     }
 
     parentUnits (unit) {
