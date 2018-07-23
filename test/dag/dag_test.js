@@ -1,9 +1,21 @@
 
-const GENESIS_UNIT = { unit:'0' , level: 0 };
-const dag = require('../../dag/dag').getInstance(GENESIS_UNIT);
+// const GENESIS_UNIT = { unit:'0' , level: 0 };
+const dag = require('../../dag/dag');
 
 
-function test () {
+async function test () {
+    let dagInst = await dag.getInstance();
+
+    let ships = dagInst.getRelationship();
+    console.log('getRelationship: ')
+
+    ships.forEach(function (value, key) {
+        console.log('\nkey:', key)
+        console.log('value:\n', value)
+    })
+
+
+    /*
     console.log('now tips unit:', dag.tipUnits());
     
     let units = [
@@ -39,7 +51,14 @@ function test () {
     let ret7_1 = dag.childrenUnit(unit_7);
     console.log(ret7_1);
 
+    let ships = dag.getRelationship();
+    console.log('getRelationship: ')
 
+    ships.forEach(function (value, key) {
+        console.log('\nkey:', key)
+        console.log('value:\n', value)
+    })
+    */
     // let levelInfo = dag.levelInfo(unit_7);
     // console.log('7----', levelInfo);
 
