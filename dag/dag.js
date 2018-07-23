@@ -61,9 +61,9 @@ class Dag {
 }
 
 let dag = null;
-function getInstance () {
+function getInstance (ROOT_UNIT) {
     if (!dag) {
-        dag = new Dag();
+        dag = new Dag(ROOT_UNIT);
     }
     return dag;
 }
