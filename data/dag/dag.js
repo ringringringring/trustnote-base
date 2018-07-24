@@ -3,14 +3,15 @@
 const constant = require('../config/const');
 const dagre = require('dagre');
 const dataManager = require('../db/dataManager');
+const readManager = require('../db/readManager').getInstance();
+const log = require('../common/logger');
 
 class Dag {
     constructor (ROOT_UNIT) {
-        if (!this.dag) {
-            this.dag = this.initdag();
-            this.relationship =  new Map();
-            // this.setRootUnit(ROOT_UNIT);
-        }
+        this.dag = this.initdag();
+        this.relationship =  new Map();
+        this.units = new Map();
+        this.stableUnits = [];
     }
 
     initdag() {
@@ -21,12 +22,25 @@ class Dag {
         return g
     }
 
+    saveUnitDetail (unit) {
+        this.units.set(unit.unit, unit);
+    }
+
+    pushStableUnit (unit) {
+        this.stableUnits.push(unit.unit);
+    }
+
     setRootUnit(unit) {
-        this.dag.setNode(unit.unit, unit);
+        this.__setUnitNode(unit);
+    }
+
+    __setUnitNode (unit) {
+        this.dag.setNode(unit.unit);
+        this.saveUnitDetail(unit);
     }
 
     addUnit(unit) {
-        this.dag.setNode(unit.unit, unit);
+        this.__setUnitNode(unit);
         let relations = [];
         let tempTarget = [];
         for ( let parentUnit of unit.parent_units ) {
@@ -49,7 +63,7 @@ class Dag {
     }
 
     unit (unit) {
-        return this.dag.node(unit.unit);
+        return this.units.get(unit.unit);
     }
 
     getRelationship () {
@@ -57,7 +71,7 @@ class Dag {
     }
 
     determineIfIncluded (sourceUnit, targetUnit) {
-        // if (  )
+        
     }
 
     parentUnits (unit) {
@@ -85,17 +99,53 @@ class Dag {
 
 }
 
+const GO_UP_STABLE_UNITS_LENGTH = 10;
+
 let dag = null;
-async function getInstance (ROOT_UNIT) {
+function  initDag () {
     if (!dag) {
         dag = new Dag();
-    }
-    let units = await dataManager.readHashTreeFromUnit();
-    for ( let unit of units ) {
-        dag.addUnit(unit);
     }
     return dag;
 }
 
-exports.getInstance = getInstance;
 
+async function  makeUpHashTree (rootUnit)  {
+    log.debug('rootUnit:', rootUnit);
+    dag.setRootUnit(rootUnit);
+
+    const units = await readManager.unitsFromLevel(rootUnit.level);
+    log.debug('makeUpHashTree:  ', units);
+
+    for (let i = 0; i < units.length; i ++) {
+        let unit = units[i];
+        let parentUnits = await readManager.parentUnits(unit);
+        unit.parent_units = parentUnits;
+        dag.addUnit(unit);
+    }
+}
+
+async function getInstance () {
+    initDag();
+
+    let lastStableMci = await readManager.lastStableMCI();
+    log.debug('lastStableMci: ', lastStableMci);
+    const stableUnits = await readManager.stableUnits(lastStableMci - GO_UP_STABLE_UNITS_LENGTH, lastStableMci )
+    log.debug('stableUnit: ', stableUnits);
+
+    //已经稳定的单元存储
+    for ( let i = 0; i < stableUnits.length; i ++) {
+        let stableUnit = stableUnits[i];
+        dag.saveUnitDetail(stableUnit);
+        dag.pushStableUnit(stableUnit.unit);
+    }
+
+    let rootUnit = await readManager.unitByMCI(lastStableMci);
+
+    await makeUpHashTree(rootUnit);
+
+    return dag;
+}
+
+
+exports.getInstance = getInstance;
