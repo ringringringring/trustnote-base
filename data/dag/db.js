@@ -1,151 +1,153 @@
-/*jslint node: true */
-"use strict";
+/* jslint node: true */
 
-const conf = require('../../config/conf');
+const mysql = require('mysql');
 const log = require('../../common/logger');
-var mysql = require('mysql');
 
-function queryCallbackToQueryPromise (conn_or_pool) {
-    let fn = conn_or_pool.query;
+function queryCallbackToQueryPromise(conn_or_pool) {
+    const fn = conn_or_pool.query;
     return function () {
-        let last_arg = arguments[arguments.length - 1];
-        let bHasCallback = (typeof last_arg === 'function');
-        if (bHasCallback){ 
+        const last_arg = arguments[arguments.length - 1];
+        const bHasCallback = (typeof last_arg === 'function');
+        if (bHasCallback) {
             return fn.apply(conn_or_pool, arguments);
         }
-        let new_args =  Array.from(arguments);
+        const new_args = Array.from(arguments);
         let resolve;
         const waitPromise = new Promise(r => resolve = r);
-        function callback ( err, results, fields ) {
+        function callback(err, results, fields) {
             if (err) {
                 log.error(`query err: ${err}`);
                 resolve();
                 throw new Error(err);
-            } else  resolve(results);
-        };
+            } else resolve(results);
+        }
         new_args.push(callback);
         fn.apply(conn_or_pool, new_args);
         return waitPromise;
-    }
+    };
 }
 
-function createPool ({max_connections,host,database,user,password}) {
-    let pool  = mysql.createPool({
-        connectionLimit : max_connections,
-        host     : host,
-        database : database,
-        user     : user,
-        password : password,
-        charset  : 'utf8mb4_unicode_ci'
+function createPool({
+    max_connections, host, database, user, password,
+}) {
+    const pool = mysql.createPool({
+        connectionLimit: max_connections,
+        host,
+        database,
+        user,
+        password,
+        charset: 'utf8mb4_unicode_ci',
     });
     return pool;
 }
 
 class DataBase {
-
-    constructor({max_connections,host,database,user,password}) {
+    constructor({
+        max_connections, host, database, user, password,
+    }) {
         if (!this.pool) {
-             this.pool = createPool({max_connections,host,database,user,password});
+            this.pool = createPool({
+                max_connections, host, database, user, password,
+            });
         }
-        let query = this.pool.query;
+        const query = this.pool.query;
         this.query = queryCallbackToQueryPromise(this.pool);
     }
 
-    async executeInTransaction (doWork) {
-        let conn =  await this.takeConnectionFromPool();
-        await conn.query("BEGIN");
-        let err = await doWork(conn);
-        await conn.query(err ? "ROLLBACK" : "COMMIT");
+    async executeInTransaction(doWork) {
+        const conn = await this.takeConnectionFromPool();
+        await conn.query('BEGIN');
+        const err = await doWork(conn);
+        await conn.query(err ? 'ROLLBACK' : 'COMMIT');
         await conn.release();
-        log.info(`connection: ${conn.threadId} is released`)
+        log.info(`connection: ${conn.threadId} is released`);
     }
-    
-    takeConnectionFromPool () {
-        return new Promise ((resolve, reject)=> {
-            this.pool.getConnection(function(err, new_connection) {
+
+    takeConnectionFromPool() {
+        return new Promise((resolve, reject) => {
+            this.pool.getConnection((err, new_connection) => {
                 if (err) {
-                    log.error('getConnection err:',err);
+                    log.error('getConnection err:', err);
                     resolve();
                     throw new Error(err);
-                    return;
-                };
-                log.info("got connection from pool");
+                }
+                log.info('got connection from pool');
                 new_connection.query = queryCallbackToQueryPromise(new_connection);
                 resolve(new_connection);
             });
-        })
+        });
     }
 
-    addQuery (arr) {
+    addQuery(arr) {
         if (!Array.isArray(arr)) {
             log.warn('the first param execpted an array');
             return;
-        };
-        let query_args = [];
-        for (let i=1; i<arguments.length; i++){
+        }
+        const query_args = [];
+        for (let i = 1; i < arguments.length; i++) {
             query_args.push(arguments[i]);
         }
         arr.push(query_args);
     }
 
-    async exec (arr) {
+    async exec(arr) {
         if (!Array.isArray(arr)) {
             log.info('exec params execpted an array');
             return;
         }
-        for (let i = 0; i < arr.length; i ++ ) {
-            let query_args = arr[i];
+        for (let i = 0; i < arr.length; i++) {
+            const query_args = arr[i];
             await this.query.apply(this, query_args);
         }
         return 'ok';
     }
 
-    getCountUsedConnections (){
+    getCountUsedConnections() {
         return (this.pool._allConnections.length - this.pool._freeConnections.length);
-    };
-    
-    async close (cb){
+    }
+
+    async close(cb) {
         return new Promise((resolve, reject) => {
-            this.pool.end(function(err){
+            this.pool.end((err) => {
                 resolve();
-                if(err) throw new Error(err);
+                if (err) throw new Error(err);
             });
-        })
-    };
-    
-    addTime (interval){
-        return "NOW() + INTERVAL "+interval;
-    };
+        });
+    }
 
-    getNow (){
-        return "NOW()";
-    };
+    addTime(interval) {
+        return `NOW() + INTERVAL ${interval}`;
+    }
 
-    getFromUnixTime (ts){
-        return "FROM_UNIXTIME("+ts+")";
-    };
+    getNow() {
+        return 'NOW()';
+    }
 
-    getRandom (){
-        return "RAND()";
-    };
+    getFromUnixTime(ts) {
+        return `FROM_UNIXTIME(${ts})`;
+    }
 
-    forceIndex (index){
-        return "FORCE INDEX ("+ index +")";
-    };
+    getRandom() {
+        return 'RAND()';
+    }
 
-    dropTemporaryTable (table){
-        return "DROP TEMPORARY TABLE IF EXISTS " + table;
-    };
+    forceIndex(index) {
+        return `FORCE INDEX (${index})`;
+    }
 
-    getIgnore (){
-        return "IGNORE";
-    };
+    dropTemporaryTable(table) {
+        return `DROP TEMPORARY TABLE IF EXISTS ${table}`;
+    }
 
-    getUnixTimestamp (date){
-        return "UNIX_TIMESTAMP("+date+")";
-    };
+    getIgnore() {
+        return 'IGNORE';
+    }
+
+    getUnixTimestamp(date) {
+        return `UNIX_TIMESTAMP(${date})`;
+    }
 }
 
-module.exports =  {
+module.exports = {
     DataBase,
 };

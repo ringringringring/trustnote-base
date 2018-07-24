@@ -3,23 +3,19 @@
 const conf = require('../../../config/conf');
 const dataBase = require('../db.js');
 
-class WriterManager  {
-    constructor (writerConf) {
+class WriterManager {
+    constructor(writerConf) {
         this.writer = new dataBase.DataBase(writerConf);
     }
-
-    
-
 }
 
-let instance = null
+let instance = null;
 function getInstance() {
     if (!instance) {
         instance = new WriterManager(conf.databaseWriter);
     }
     return instance;
 }
-
 
 
 module.exports = {
