@@ -1,24 +1,24 @@
-const readManager = require('./readManager')
-const writerManager = require('./writerManager')
+const readManager = require('./readManager');
+const writerManager = require('./writerManager');
 
 async function getAllUnits() {
-    const inst = readManager.getInstance()
-    const units = await inst.query('select * from units')
-    return units
+    const inst = readManager.getInstance();
+    const units = await inst.query('select * from units');
+    return units;
 }
 
 async function getUnitById(conn, id) {
-    const ret = await conn.query(`select * from units where unit = ${id}`)
-    return ret
+    const ret = await conn.query(`select * from units where unit = ${id}`);
+    return ret;
 }
 
 function ReleaseConnection(conn) {
-    conn.release()
+    conn.release();
 }
 async function getWriterConnction() {
-    const inst = writerManager.getInstance()
-    const conn = await inst.takeConnectionFromPool()
-    return conn
+    const inst = writerManager.getInstance();
+    const conn = await inst.takeConnectionFromPool();
+    return conn;
 }
 
 
@@ -30,4 +30,4 @@ module.exports = {
     getWriterConnction,
     ReleaseConnection,
     getUnitById,
-}
+};

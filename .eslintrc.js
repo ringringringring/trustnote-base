@@ -13,7 +13,7 @@ module.exports = {
         "linebreak-style": ["error", "unix"],
         "quotes": ["error", "single"],
         "max-len": ["error", { "code": 200 }],
-        "semi": ["warn", "never"],
+        "semi": ["warn", "always"],
         "no-param-reassign": ["off", "unix"],
         "import/no-dynamic-require": 0,
         "global-require": 0,
