@@ -1,15 +1,22 @@
 /* jslint node: true */
 
-const conf = require('../config/conf');
-const dataBase = require('./db.js');
+const conf = require('../../../config/conf');
+const dataBase = require('../db.js');
 
-let instance = null
+class WriterManager {
+    constructor(writerConf) {
+        this.writer = new dataBase.DataBase(writerConf);
+    }
+}
+
+let instance = null;
 function getInstance() {
     if (!instance) {
-        instance = new dataBase.DataBase(conf.databaseWriter);
+        instance = new WriterManager(conf.databaseWriter);
     }
     return instance;
 }
+
 
 module.exports = {
     getInstance,

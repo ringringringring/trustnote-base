@@ -1,23 +1,20 @@
-const readManager = require('./readManager');
-const writerManager = require('./writerManager');
+
+const readManager = require('./dag/reader/readManager');
+const writerManager = require('./dag/writer/writerManager');
+
+const readInst = readManager.getInstance();
+const writeInst = writerManager.getInstance();
 
 async function getAllUnits() {
-    const inst = readManager.getInstance();
-    const units = await inst.query('select * from units');
+    const units = await readInst.query('select * from units');
     return units;
-}
-
-async function getUnitById(conn, id) {
-    const ret = await conn.query(`select * from units where unit = ${id}`);
-    return ret;
 }
 
 function ReleaseConnection(conn) {
     conn.release();
 }
 async function getWriterConnction() {
-    const inst = writerManager.getInstance();
-    const conn = await inst.takeConnectionFromPool();
+    const conn = await writeInst.takeConnectionFromPool();
     return conn;
 }
 
