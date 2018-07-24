@@ -1,8 +1,8 @@
 /*jslint node: true */
 "use strict";
 
-const conf = require('../config/conf');
-const log = require('../common/logger');
+const conf = require('../../config/conf');
+const log = require('../../common/logger');
 var mysql = require('mysql');
 
 function queryCallbackToQueryPromise (conn_or_pool) {

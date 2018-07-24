@@ -1,7 +1,7 @@
 /* jslint node: true */
 
-const conf = require('../config/conf');
-const dataBase = require('./db.js');
+const conf = require('../../../config/conf');
+const dataBase = require('../db.js');
 
 class ReadManager  {
     constructor (readerConf) {
@@ -63,6 +63,15 @@ class ReadManager  {
         let arr = [];
         for ( let unit of units ) {
             arr.push(unit.parent_unit);
+        }
+        return arr;
+    }
+
+    async archivedJoints () {
+        const units = await this.reader.query('select unit from archived_joints');
+        let arr = [];
+        for ( let unit of units ) {
+            arr.push(unit.unit);
         }
         return arr;
     }

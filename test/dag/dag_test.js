@@ -1,23 +1,25 @@
 
-// const GENESIS_UNIT = { unit:'0' , level: 0 };
-const dag = require('../../dag/dag');
-
+const dag = require('../../data/dag/dag');
+const log = require('../../common/logger');
 
 async function test () {
     let dagInst = await dag.getInstance();
 
+    let ret = dagInst.determineIfIncluded('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=', 'vPgT4iHDDocSH73ph77IEXqPxJdeRWdFWHbrOWNiIvM=');
+    log.info('ret: ', ret);
+    
+    let c = dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
+    log.info('detail: ', c);
+    /*
+    console.log('now tips unit:', dag.tipUnits());
+    
     let ships = dagInst.getRelationship();
     console.log('getRelationship: ')
-
     ships.forEach(function (value, key) {
         console.log('\nkey:', key)
         console.log('value:\n', value)
     })
 
-
-    /*
-    console.log('now tips unit:', dag.tipUnits());
-    
     let units = [
         { unit: '1', parent_units: ['0'] },
         { unit: '2', parent_units: ['1'] },
