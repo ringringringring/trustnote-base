@@ -103,6 +103,11 @@ class Dag {
         return this.dag.sources();
     }
 
+    tipUnitsWithGoodSequence() {
+       // Todo
+    }
+
+
     /*
     *
     * reture {Array} ROOT_UNIT
