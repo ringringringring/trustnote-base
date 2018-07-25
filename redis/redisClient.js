@@ -4,12 +4,14 @@ const log = require('../common/logger');
 const redis = require("redis");
 const client = redis.createClient();
 
+let redisReady = null;
 client.on("error", function (err) {
     log.error("Error " + err);
 });
 
 client.on("ready", () => {
     log.info('redis client is ready');
+    redisReady = true;
 });
 
 const {promisify} = require('util');
@@ -57,4 +59,25 @@ client.delKey = function (key) {
     })
 }
 
-module.exports = client;
+function getRedisClient ()  {
+    return new Promise((resolve,reject) => {
+            if (redisReady) {
+                return resolve(client);
+            }
+            client.on("error", function (err) {
+                log.error("Error " + err);
+                log.error('encounter an error connecting to the Redis server, Make sure you turn on it');
+                redisReady = false;
+                reject(err);
+            });
+
+            client.on("ready", () => {
+                log.info('redis client is ready');
+                redisReady = true;
+                resolve(client);
+            });
+        })
+}
+
+module.exports = getRedisClient 
+

@@ -1,10 +1,11 @@
 
 const log = require('../common/logger');
-const client = require('../redis/redisClient');
+const getRedisClient = require('../redis/redisClient');
 
 async function test () {
+    let client = await getRedisClient();
+    
     let key = 'test_unit';
-
     let ret = await client.setKey(key, 'One World One Dream');
     log.info('setKey: ', key ,ret);
 

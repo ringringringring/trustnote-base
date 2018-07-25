@@ -4,7 +4,7 @@ const dagre = require('dagre');
 const constant = require('../../config/const');
 const dbReader = require('./dbReader').getInstance();
 const log = require('../../common/logger');
-const redisClient = require('../../redis/redisClient');
+const getRedisClient = require('../../redis/redisClient');
 
 class Dag {
     constructor() {
@@ -24,7 +24,10 @@ class Dag {
     }
 
     async saveUnitDetail(unit) {
-        await redisClient.setKey(unit.unit, JSON.stringify(unit)); 
+        if (!this.redisClient) {
+            this.redisClient = await getRedisClient();
+        }
+        await this.redisClient.setKey(unit.unit, JSON.stringify(unit)); 
     }
 
     pushStableUnit(unit) {
@@ -72,7 +75,7 @@ class Dag {
     }
 
     async unitDetail(unitHash) {
-        let ret = await redisClient.getKey(unitHash);
+        let ret = await this.redisClient.getKey(unitHash);
         ret = JSON.parse(ret); 
         return ret;
     }
