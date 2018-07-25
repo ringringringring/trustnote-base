@@ -4,6 +4,7 @@ CREATE TABLE units (
 	version VARCHAR(10) NOT NULL DEFAULT '1.0',  
 	alt VARCHAR(3) NOT NULL DEFAULT '1',
 	round_index BIGINT NULL,
+	attestor_round_index BIGINT NULL,
 	last_ball_unit CHAR(44) BINARY NULL,
 	content_hash CHAR(44) NULL,
 	is_free TINYINT NOT NULL DEFAULT 1,
