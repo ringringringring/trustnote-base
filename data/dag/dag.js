@@ -2,7 +2,7 @@
 
 const dagre = require('dagre');
 const constant = require('../../config/const');
-const readManager = require('./dbReader').getInstance();
+const dbReader = require('./dbReader').getInstance();
 const log = require('../../common/logger');
 
 class Dag {
@@ -104,7 +104,15 @@ class Dag {
     }
 
     tipUnitsWithGoodSequence() {
-       // Todo
+        const tipUnits = this.tipUnits();
+        let arr = [];
+        for ( let u of tipUnits) {
+            let unit =  this.unitDetail(u);
+            if ( unit.sequence === 'good') {
+                arr.push (unit)
+            } 
+        }
+        return arr;
     }
 
 
@@ -118,40 +126,37 @@ class Dag {
 }
 
 const GO_UP_STABLE_UNITS_LENGTH = 10;
-
 let dag = null;
-function initDag() {
-    if (!dag) {
-        dag = new Dag();
-    }
-    return dag;
-}
 
 async function makeUpHashTree(rootUnit) {
     log.debug('rootUnit:', rootUnit);
     dag.setRootUnit(rootUnit);
 
-    const units = await readManager.unitsFromLevel(rootUnit.level);
+    const units = await dbReader.unitsFromLevel(rootUnit.level);
     // log.debug('makeUpHashTree:  ', units);
     for (let i = 0; i < units.length; i++) {
         const unit = units[i];
-        const parentUnits = await readManager.parentUnits(unit);
+        const parentUnits = await dbReader.parentUnits(unit);
         unit.parent_units = parentUnits;
         dag.addUnit(unit);
     }
 }
 
 async function getInstance() {
-    initDag();
+    if (dag) {
+        return dag;
+    };
 
-    const archivedJoints = await readManager.archivedJoints();
+    dag = new Dag();
+
+    const archivedJoints = await dbReader.archivedJoints();
     for (const joint of archivedJoints) {
         dag.pushArchivedJoints(joint);
     }
 
-    const lastStableMci = await readManager.lastStableMCI();
+    const lastStableMci = await dbReader.lastStableMCI();
     log.debug('lastStableMci: ', lastStableMci);
-    const stableUnits = await readManager.stableUnits(lastStableMci - GO_UP_STABLE_UNITS_LENGTH, lastStableMci);
+    const stableUnits = await dbReader.stableUnits(lastStableMci - GO_UP_STABLE_UNITS_LENGTH, lastStableMci);
     // log.debug('stableUnit: ', stableUnits);
 
     // 已经稳定的单元存储
@@ -161,7 +166,7 @@ async function getInstance() {
         dag.pushStableUnit(stableUnit.unit);
     }
 
-    const rootUnit = await readManager.unitByMCI(lastStableMci);
+    const rootUnit = await dbReader.unitByMCI(lastStableMci);
     await makeUpHashTree(rootUnit);
 
     return dag;
