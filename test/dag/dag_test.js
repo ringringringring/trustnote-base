@@ -10,6 +10,11 @@ async function test () {
     
     let c = dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
     log.info('detail: ', c);
+    
+    let tipUnitsWithGoodSequence = dagInst.tipUnitsWithGoodSequence();
+
+    console.log('tipUnitsWithGoodSequence: ', tipUnitsWithGoodSequence ); 
+
     /*
     console.log('now tips unit:', dag.tipUnits());
     
