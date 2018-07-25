@@ -11,7 +11,7 @@ class Dag {
         this.relationship = new Map();
         this.units = new Map();
         this.stableUnits = [];
-        this.archivedJoints = [];
+        this._archivedJoints = [];
     }
 
     initdag() {
@@ -31,24 +31,24 @@ class Dag {
     }
 
     pushArchivedJoints(unit) {
-        this.archivedJoints.push(unit);
+        this._archivedJoints.push(unit);
     }
 
     archivedJoints() {
-        return this.archivedJoints;
+        return this._archivedJoints;
     }
 
     setRootUnit(unit) {
-        this.__setUnitNode(unit);
+        this._setUnitNode(unit);
     }
 
-    __setUnitNode(unit) {
+    _setUnitNode(unit) {
         this.dag.setNode(unit.unit);
         this.saveUnitDetail(unit);
     }
 
     addUnit(unit) {
-        this.__setUnitNode(unit);
+        this._setUnitNode(unit);
         const relations = [];
         const targets = [];
         for (const parentUnit of unit.parent_units) {
