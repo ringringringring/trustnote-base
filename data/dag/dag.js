@@ -4,12 +4,13 @@ const dagre = require('dagre');
 const constant = require('../../config/const');
 const dbReader = require('./dbReader').getInstance();
 const log = require('../../common/logger');
+const redisClient = require('../../redis/redisClient');
 
 class Dag {
     constructor() {
         this.dag = this.initdag();
         this.relationship = new Map();
-        this.units = new Map();
+        // this.units = new Map();
         this.stableUnits = [];
         this._archivedJoints = [];
     }
@@ -22,8 +23,8 @@ class Dag {
         return g;
     }
 
-    saveUnitDetail(unit) {
-        this.units.set(unit.unit, unit);
+    async saveUnitDetail(unit) {
+        await redisClient.setKey(unit.unit, JSON.stringify(unit)); 
     }
 
     pushStableUnit(unit) {
@@ -38,17 +39,17 @@ class Dag {
         return this._archivedJoints;
     }
 
-    setRootUnit(unit) {
-        this._setUnitNode(unit);
+    async setRootUnit(unit) {
+        await this._setUnitNode(unit);
     }
 
-    _setUnitNode(unit) {
+    async _setUnitNode(unit) {
         this.dag.setNode(unit.unit);
-        this.saveUnitDetail(unit);
+        await this.saveUnitDetail(unit);
     }
 
-    addUnit(unit) {
-        this._setUnitNode(unit);
+    async addUnit(unit) {
+        await this._setUnitNode(unit);
         const relations = [];
         const targets = [];
         for (const parentUnit of unit.parent_units) {
@@ -70,8 +71,10 @@ class Dag {
         this.relationship.set(unit.unit, { relations, targets });
     }
 
-    unitDetail(unitHash) {
-        return this.units.get(unitHash);
+    async unitDetail(unitHash) {
+        let ret = await redisClient.getKey(unitHash);
+        ret = JSON.parse(ret); 
+        return ret;
     }
 
     getRelationship() {
@@ -103,11 +106,11 @@ class Dag {
         return this.dag.sources();
     }
 
-    tipUnitsWithGoodSequence() {
+    async tipUnitsWithGoodSequence() {
         const tipUnits = this.tipUnits();
         let arr = [];
         for ( let u of tipUnits) {
-            let unit =  this.unitDetail(u);
+            let unit =  await this.unitDetail(u);
             if ( unit.sequence === 'good') {
                 arr.push (unit)
             } 
@@ -129,8 +132,8 @@ const GO_UP_STABLE_UNITS_LENGTH = 10;
 let dag = null;
 
 async function makeUpHashTree(rootUnit) {
-    log.debug('rootUnit:', rootUnit);
-    dag.setRootUnit(rootUnit);
+    // log.debug('rootUnit:', rootUnit);
+    await dag.setRootUnit(rootUnit);
 
     const units = await dbReader.unitsFromLevel(rootUnit.level);
     // log.debug('makeUpHashTree:  ', units);
@@ -138,7 +141,7 @@ async function makeUpHashTree(rootUnit) {
         const unit = units[i];
         const parentUnits = await dbReader.parentUnits(unit);
         unit.parent_units = parentUnits;
-        dag.addUnit(unit);
+        await dag.addUnit(unit);
     }
 }
 
@@ -155,14 +158,14 @@ async function getInstance() {
     }
 
     const lastStableMci = await dbReader.lastStableMCI();
-    log.debug('lastStableMci: ', lastStableMci);
+    log.info('lastStableMci: ', lastStableMci);
     const stableUnits = await dbReader.stableUnits(lastStableMci - GO_UP_STABLE_UNITS_LENGTH, lastStableMci);
     // log.debug('stableUnit: ', stableUnits);
 
     // 已经稳定的单元存储
     for (let i = 0; i < stableUnits.length; i++) {
         const stableUnit = stableUnits[i];
-        dag.saveUnitDetail(stableUnit);
+        await dag.saveUnitDetail(stableUnit);
         dag.pushStableUnit(stableUnit.unit);
     }
 
