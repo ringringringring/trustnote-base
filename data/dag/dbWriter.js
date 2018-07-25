@@ -1,7 +1,7 @@
 /* jslint node: true */
 
-const conf = require('../../../config/conf');
-const dataBase = require('../db.js');
+const conf = require('../../config/conf');
+const dataBase = require('./db.js');
 
 class WriterManager {
     constructor(writerConf) {

@@ -2,7 +2,7 @@
 
 const dagre = require('dagre');
 const constant = require('../../config/const');
-const readManager = require('./reader/readManager').getInstance();
+const readManager = require('./dbReader').getInstance();
 const log = require('../../common/logger');
 
 class Dag {
