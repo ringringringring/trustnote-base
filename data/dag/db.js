@@ -3,35 +3,36 @@
 const mysql = require('mysql');
 const log = require('../../common/logger');
 
-function queryCallbackToQueryPromise(conn_or_pool) {
-    const fn = conn_or_pool.query;
-    return function () {
-        const last_arg = arguments[arguments.length - 1];
-        const bHasCallback = (typeof last_arg === 'function');
+function queryCallbackToQueryPromise(connOrPool, ...args) {
+    const fn = connOrPool.query;
+    return () => {
+        const lastArg = args[args.length - 1];
+        const bHasCallback = (typeof lastArg === 'function');
         if (bHasCallback) {
-            return fn.apply(conn_or_pool, arguments);
+            return fn.apply(connOrPool, args);
         }
-        const new_args = Array.from(arguments);
+        const newArgs = Array.from(args);
         let resolve;
         const waitPromise = new Promise(r => resolve = r);
-        function callback(err, results, fields) {
+      
+        function callback(err, results) {
             if (err) {
                 log.error(`query err: ${err}`);
                 resolve();
                 throw new Error(err);
             } else resolve(results);
         }
-        new_args.push(callback);
-        fn.apply(conn_or_pool, new_args);
+        newArgs.push(callback);
+        fn.apply(connOrPool, newArgs);
         return waitPromise;
     };
 }
 
 function createPool({
-    max_connections, host, database, user, password,
+    maxConnections, host, database, user, password,
 }) {
     const pool = mysql.createPool({
-        connectionLimit: max_connections,
+        connectionLimit: maxConnections,
         host,
         database,
         user,
@@ -43,11 +44,11 @@ function createPool({
 
 class DataBase {
     constructor({
-        max_connections, host, database, user, password,
+        maxConnections, host, database, user, password,
     }) {
         if (!this.pool) {
             this.pool = createPool({
-                max_connections, host, database, user, password,
+                maxConnections, host, database, user, password,
             });
         }
         const query = this.pool.query;
@@ -78,16 +79,16 @@ class DataBase {
         });
     }
 
-    addQuery(arr) {
+    static addQuery(arr) {
         if (!Array.isArray(arr)) {
             log.warn('the first param execpted an array');
             return;
         }
-        const query_args = [];
+        const queryArgs = [];
         for (let i = 1; i < arguments.length; i++) {
-            query_args.push(arguments[i]);
+            queryArgs.push(arguments[i]);
         }
-        arr.push(query_args);
+        arr.push(queryArgs);
     }
 
     async exec(arr) {
@@ -96,8 +97,8 @@ class DataBase {
             return;
         }
         for (let i = 0; i < arr.length; i++) {
-            const query_args = arr[i];
-            await this.query.apply(this, query_args);
+            const queryArgs = arr[i];
+            await this.query.apply(this, queryArgs);
         }
         return 'ok';
     }
@@ -106,44 +107,44 @@ class DataBase {
         return (this.pool._allConnections.length - this.pool._freeConnections.length);
     }
 
-    async close(cb) {
+    async close() {
         return new Promise((resolve, reject) => {
             this.pool.end((err) => {
                 resolve();
-                if (err) throw new Error(err);
+                if (err) reject(err);
             });
         });
     }
 
-    addTime(interval) {
+   static addTime(interval) {
         return `NOW() + INTERVAL ${interval}`;
     }
 
-    getNow() {
+    static getNow() {
         return 'NOW()';
     }
 
-    getFromUnixTime(ts) {
+    static getFromUnixTime(ts) {
         return `FROM_UNIXTIME(${ts})`;
     }
 
-    getRandom() {
+    static getRandom() {
         return 'RAND()';
     }
 
-    forceIndex(index) {
+    static forceIndex(index) {
         return `FORCE INDEX (${index})`;
     }
 
-    dropTemporaryTable(table) {
+    static dropTemporaryTable(table) {
         return `DROP TEMPORARY TABLE IF EXISTS ${table}`;
     }
 
-    getIgnore() {
+    static getIgnore() {
         return 'IGNORE';
     }
 
-    getUnixTimestamp(date) {
+    static getUnixTimestamp(date) {
         return `UNIX_TIMESTAMP(${date})`;
     }
 }
