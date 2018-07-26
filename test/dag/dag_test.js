@@ -8,12 +8,12 @@ async function test () {
     let ret = dagInst.determineIfIncluded('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=', 'vPgT4iHDDocSH73ph77IEXqPxJdeRWdFWHbrOWNiIvM=');
     log.info('ret: ', ret);
     
-    let c = dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
+    let c = await dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
     log.info('detail: ', c);
     
-    let tipUnitsWithGoodSequence = dagInst.tipUnitsWithGoodSequence();
+    let tipUnitsWithGoodSequence = await dagInst.tipUnitsWithGoodSequence();
 
-    console.log('tipUnitsWithGoodSequence: ', tipUnitsWithGoodSequence ); 
+    log.info('tipUnitsWithGoodSequence: ', tipUnitsWithGoodSequence ); 
 
     /*
     console.log('now tips unit:', dag.tipUnits());
