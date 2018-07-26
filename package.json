@@ -11,7 +11,8 @@
     "chat"
   ],
   "scripts": {
-    "start": "node start.js"
+    "start": "node start.js",
+    "test": "mocha"
   },
   "license": "MIT",
   "repository": {
@@ -26,14 +27,14 @@
     "secp256k1": "secp256k1/js"
   },
   "dependencies": {
-    "ws": "^1.0.1",
+    "lodash": "^4.6.1",
+    "log4js": "^2.10.0",
+    "longjohn": "^0.2.11",
+    "mysql": "^2.10.2",
+    "secp256k1": "^3.1.0",
     "socks": "1.1.10",
     "thirty-two": "^1.0.1",
-    "longjohn": "^0.2.11",
-    "log4js": "^2.10.0",
-    "lodash": "^4.6.1",
-    "mysql": "^2.10.2",
-    "secp256k1": "^3.1.0"
+    "ws": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
@@ -42,6 +43,7 @@
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0"
+    "eslint-plugin-standard": "^3.1.0",
+    "mocha": "^5.2.0"
   }
 }

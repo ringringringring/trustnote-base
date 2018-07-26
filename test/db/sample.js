@@ -1,44 +1,22 @@
-// Replace this with your target module file
-var validation=require('../validation_utils');
-var assert=require('assert');
-
+ // Replace this with your target module file
+ "use strict"
+let conf=require('../../config/conf')
+let db=require('../../db/db')
+let assert=require('assert')
+let dbInstance=null
 describe("DB suite:" ,function(){
-    
-  describe(' test case 1',function(){
-    //Hooks here if required
-    before(function() {
-      // runs before all tests in this block
-    });
-
+describe('test db query method',function(){
+    before(function() { 
+      dbInstance = new db.DataBase(conf.databaseReader)
+    })
     after(function() {
-      // runs after all tests in this block
-    });
-    
-    beforeEach(function() {
-      // runs before each test in this block
-    });
-
-    afterEach(function() {
-      // runs after each test in this block
-    });
-    
-    // test cases , place all your real cases here
-      // it('10 should be not string instance',function(){
-      // // it.only('10 should be not string instance',function(){
-      //     assert.equal(-1, [1,2,3].indexOf(4));
-
-      // });
-
-      // it('test async function call ', function(done) {
-      //     var fs=require('fs');
-      //     fs.readFile('./test/test1.js', function(err, data){
-          
-      //       if(err)
-      //           done(err);
-      //         else
-      //           done();
-      //     })
-      //   });
-  });
-
-});
+    })
+      it('query for select test',  function(done){
+        const ret = dbInstance.query('select * from units')
+        ret.then(function(value){
+           assert.notEqual(value,null,'test passed')
+           done()
+        })
+      })
+  })
+})
