@@ -33,11 +33,11 @@ class ReadManager {
         }
     }
 
-    async childrenUnits(unit) {
-        const children = await this.reader.query('select child_unit from parenthoods where  parent_unit = ?', unit.unit);
+    async childrenUnits (unit) {
+        const children = await this.reader.query('SELECT child_unit from parenthoods where parent_unit = ?', [unit.unit]);
         let units = [];
         for (const u of children) {
-            const c = await this.reader.query('select * from units where unit = ?', [u]);
+            const c = await this.reader.query('select * from units where unit = ?', [u.child_unit]);
             units = [...units, ...c];
         }
         return units;
