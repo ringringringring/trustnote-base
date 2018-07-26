@@ -1,7 +1,7 @@
 /* jslint node: true */
 
 const databaseReader = {
-    max_connections: 30,
+    maxConnections: 30,
     host: '119.28.3.80',
     database: 'trustnote',
     user: 'root',
@@ -9,7 +9,7 @@ const databaseReader = {
 }
 
 const databaseWriter = {
-    max_connections: 30,
+    maxConnections: 30,
     host: '119.28.3.80',
     database: 'trustnote',
     user: 'root',
