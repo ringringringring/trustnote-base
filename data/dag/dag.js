@@ -61,14 +61,14 @@ class Dag {
         const targets = [];
         for (const parentUnit of unit.parent_units) {
             this.dag.setEdge(unit.unit, parentUnit);
-            const relation = { source: unit.unit, target: parentUnit, skip: 1 };
+            const relation = { source: unit.unit, target: parentUnit, step: 1 };
             if (!targets.includes(relation.target)) {
                 targets.push(relation.target);
                 relations.push(relation);
             }
             const grandfather = (this.relationship.get(parentUnit) || { relations: [], targets: [] }).relations;
             for (const relation of grandfather) {
-                const grandfatherRelation = { source: unit.unit, target: relation.target, skip: relation.skip + 1 };
+                const grandfatherRelation = { source: unit.unit, target: relation.target, step: relation.step + 1 };
                 if (!targets.includes(grandfatherRelation.target)) {
                     targets.push(grandfatherRelation.target);
                     relations.push(grandfatherRelation);
@@ -160,6 +160,7 @@ async function makeUpHashTree(rootUnit) {
         dag.setUnitNode(child);
         dag.setEdge(child.unit, rootUnit.unit);
 
+        /*
         const parentUnits = await dbReader.parentUnits(child.unit);
 
         const relations = [];
@@ -180,6 +181,7 @@ async function makeUpHashTree(rootUnit) {
             }
         }
         dag.relationship.set(child.unit, { relations, targets });
+        */
         await makeUpHashTree(child);
     }
 }
