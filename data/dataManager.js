@@ -14,11 +14,15 @@ async function getParentsFromFreeUnits() {
 }
 
 async function getLastStableMcBall() {
+    const dagInstance = await dag.getInstance()
+    // const lastBall= dagInstance.
+    // const {lastStableMcBall, lastStableMcBallUnit, lastStableMcBallMci} = dagInstance.get
     return null
 }
 
 async function readStaticUnitProps(unit) {
-    return null
+    const dagInstance = await dag.getInstance()
+    return dagInstance.unitDetail(unit)
 }
 
 // conn.query("SELECT unit, is_free, main_chain_index FROM units WHERE unit IN(?)", [arrAltBranchRootUnits]
@@ -39,8 +43,11 @@ async function readAttestorsOfUnit(unit) {
 }
 
 // graph.determineIfIncludedOrEqual(conn, row.unit, arrLaterUnits, function(bIncluded){
-async function determineIfIncludedOrEqual(unit, arrLaterUnits) { 
-    return null
+async function determineIfIncludedOrEqual(earlierUnit, arrLaterUnits) {
+    const dagInstance = await dag.getInstance()
+    const includes = arrLaterUnits.filter( (unit) => unit == earlierUnit || dagInstance.determineIfIncluded(unit, earlierUnit))
+
+    return includes.length > 0
 }
 
 // 	"SELECT witnessed_level, address \n\
@@ -61,6 +68,26 @@ async function getMaxAltLevelByBestChildren(arrBestChildren) {
     retrun null
 }
 
+
+// is_stable=0 condition is redundant given that last_ball_mci is stable
+// "SELECT 1 FROM units CROSS JOIN unit_authors USING(unit) \n\
+// WHERE  (main_chain_index>? OR main_chain_index IS NULL) AND address IN(?) AND definition_chash IS NOT NULL \n\
+// UNION \n\
+// SELECT 1 FROM units JOIN address_definition_changes USING(unit) \n\
+// WHERE (main_chain_index>? OR main_chain_index IS NULL) AND address IN(?) \n\
+// UNION \n\
+// SELECT 1 FROM units CROSS JOIN unit_authors USING(unit) \n\
+// WHERE (main_chain_index>? OR main_chain_index IS NULL) AND address IN(?) AND sequence!='good'", 
+// [last_ball_mci, arrFromAddresses, last_ball_mci, arrFromAddresses, last_ball_mci, arrFromAddresses],
+async function getUnstablePredecessorsByAddresses(arrFromAddresses, lastBallMci) {
+
+    retrun null
+}
+
+async function isGenesisUnit(unit) {
+
+    retrun true
+}
 
 
 // test purpose
