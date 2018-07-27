@@ -5,15 +5,15 @@ const log = require('../../common/logger');
 async function test () {
     let dagInst = await dag.getInstance();
 
-    let ret = dagInst.determineIfIncluded('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=', 'vPgT4iHDDocSH73ph77IEXqPxJdeRWdFWHbrOWNiIvM=');
-    log.info('ret: ', ret);
+    // let ret = dagInst.determineIfIncluded('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=', 'vPgT4iHDDocSH73ph77IEXqPxJdeRWdFWHbrOWNiIvM=');
+    // log.info('ret: ', ret);
     
-    let c = await dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
-    log.info('detail: ', c);
+    // let c = await dagInst.unitDetail('XIp/6HIyl2QsbgnBcr9IBXM90LKoFUGDhyrS5+i3hhs=')
+    // log.info('detail: ', c);
     
-    let tipUnitsWithGoodSequence = await dagInst.tipUnitsWithGoodSequence();
+    // let tipUnitsWithGoodSequence = await dagInst.tipUnitsWithGoodSequence();
 
-    log.info('tipUnitsWithGoodSequence: ', tipUnitsWithGoodSequence ); 
+    // log.info('tipUnitsWithGoodSequence: ', tipUnitsWithGoodSequence ); 
 
     /*
     console.log('now tips unit:', dag.tipUnits());
