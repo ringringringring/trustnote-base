@@ -1,5 +1,6 @@
 
 const dag = require('./dag/dag');
+const consts= require('../config/consts')
 
 async function getParentsFromFreeUnits() {
     const dagInstance = await dag.getInstance()
@@ -56,7 +57,7 @@ async function determineIfIncludedOrEqual(earlierUnit, arrLaterUnits) {
 // WHERE unit IN("+arrBestChildren.map(db.escape).join(', ')+") AND address IN(?) \n\
 // ORDER BY witnessed_level DESC",
 async function getMinMcAttestorLevelByBestChildren(arrBestChildren) {
-    retrun null
+    return null
 }
 
 // SELECT MAX(units.level) AS max_alt_level \n\
@@ -65,7 +66,7 @@ async function getMinMcAttestorLevelByBestChildren(arrBestChildren) {
 //     ON units.best_parent_unit=bpunits.unit AND bpunits.witnessed_level < units.witnessed_level \n\
 // WHERE units.unit IN("+arrAltBestChildren.map(db.escape).join(', ')+")",
 async function getMaxAltLevelByBestChildren(arrBestChildren) {
-    retrun null
+    return null
 }
 
 
@@ -81,12 +82,12 @@ async function getMaxAltLevelByBestChildren(arrBestChildren) {
 // [last_ball_mci, arrFromAddresses, last_ball_mci, arrFromAddresses, last_ball_mci, arrFromAddresses],
 async function getUnstablePredecessorsByAddresses(arrFromAddresses, lastBallMci) {
 
-    retrun null
+    return null
 }
 
-async function isGenesisUnit(unit) {
-
-    retrun true
+function isGenesisUnit(unit) {
+    
+    return consts.GENESIS_UNIT == unit
 }
 
 
