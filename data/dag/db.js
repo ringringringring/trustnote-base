@@ -3,9 +3,9 @@
 const mysql = require('mysql');
 const log = require('../../common/logger');
 
-function queryCallbackToQueryPromise(connOrPool, ...args) {
+function queryCallbackToQueryPromise(connOrPool) {
     const fn = connOrPool.query;
-    return () => {
+    return function (...args) {
         const lastArg = args[args.length - 1];
         const bHasCallback = (typeof lastArg === 'function');
         if (bHasCallback) {
