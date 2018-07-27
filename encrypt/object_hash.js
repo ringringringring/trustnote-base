@@ -199,3 +199,5 @@ exports.cleanNulls = cleanNulls
 
 exports.getDeviceAddress = getDeviceAddress
 exports.getDeviceMessageHashToSign = getDeviceMessageHashToSign
+
+exports.getSourceString = getSourceString
