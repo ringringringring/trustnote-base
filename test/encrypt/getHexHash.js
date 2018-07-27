@@ -22,7 +22,7 @@ describe('encrypt->object_hash->getHexHash', () => {
 
             logger.info(`Step 3. Do SHA256 to converted string.`)
             const expected = cryptojs.SHA256(input);
-            logger.info(`SHA256 string: ${expected}`)            
+            logger.info(`SHA256 string: ${expected}`)
 
             assert.equal(actual, expected, `Verify convert object to hex hash failed!\n expected: ${expected} \nactual:${actual}`)
         })
