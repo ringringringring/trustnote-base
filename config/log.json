@@ -4,14 +4,10 @@
         "out": { "type": "console" },
         "trustnote" : {
             "type": "dateFile", "filename": "./logs/trustnote.log", "pattern": ".yyyy-MM-dd", "compress": true  
-        },
-        "trustnote-test" : {
-            "type": "dateFile", "filename": "./logs/trustnote_test.log", "pattern": ".yyyy-MM-dd", "compress": true  
         }
     },
     "categories": {
-        "default": { "appenders": ["out", "trustnote"], "level": "info" },
-        "test": { "appenders": ["out", "trustnote-test"], "level": "info" }
+        "default": { "appenders": ["out", "trustnote"], "level": "info" }
     }
 }
 
