@@ -5,12 +5,12 @@ CREATE TABLE units (
 	alt VARCHAR(3) NOT NULL DEFAULT '1',
 	round_index BIGINT NULL,
 	attestor_round_index BIGINT NULL,
-	last_ball_unit CHAR(44) BINARY NULL,
+	last_stamp_unit CHAR(44) BINARY NULL,
 	content_hash CHAR(44) NULL,
 	is_free TINYINT NOT NULL DEFAULT 1,
 	is_on_main_chain TINYINT NOT NULL DEFAULT 0,
 	main_chain_index INT NULL, -- when it first appears
-	latest_included_mc_index INT NULL, -- latest MC ball that is included in this ball (excluding itself)
+	latest_included_mc_index INT NULL, -- latest MC stamp that is included in this stamp (excluding itself)
 	level INT NULL,
 	attestor_level INT NULL,
 	is_stable TINYINT NOT NULL DEFAULT 0,
@@ -24,7 +24,7 @@ CREATE TABLE units (
 	KEY byStableMci(is_stable, main_chain_index),
 	KEY byDate(creation_date),
 	KEY bySequence (sequence),
-	CONSTRAINT unitsByLastBallUnit FOREIGN KEY (last_ball_unit) REFERENCES units(unit),
+	CONSTRAINT unitsByLastStampUnit FOREIGN KEY (last_stamp_unit) REFERENCES units(unit),
 	FOREIGN KEY (best_parent_unit) REFERENCES units(unit)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4  COLLATE=utf8mb4_unicode_ci;
 
@@ -75,7 +75,7 @@ CREATE TABLE addresses (
 CREATE TABLE unit_authors (
 	unit CHAR(44) BINARY NOT NULL,
 	address CHAR(32) NOT NULL,
-	definition_chash CHAR(32) NULL, -- only with 1st ball from this address, and with next ball after definition change
+	definition_chash CHAR(32) NULL, -- only with 1st stamp from this address, and with next stamp after definition change
 	_mci INT NULL,
 	PRIMARY KEY (unit, address),
 	FOREIGN KEY (unit) REFERENCES units(unit),
@@ -342,15 +342,15 @@ CREATE TABLE unhandled_private_payments (
 -- ------------------
 -- Catching up
 
-CREATE TABLE hash_tree_balls (
-	ball_index INT NOT NULL PRIMARY KEY AUTO_INCREMENT, -- in increasing level order
-	ball CHAR(44) BINARY NOT NULL UNIQUE,
+CREATE TABLE hash_tree_stamps (
+	stamp_index INT NOT NULL PRIMARY KEY AUTO_INCREMENT, -- in increasing level order
+	stamp CHAR(44) BINARY NOT NULL UNIQUE,
 	unit CHAR(44) BINARY NOT NULL UNIQUE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4  COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE catchup_chain_balls (
+CREATE TABLE catchup_chain_stamps (
 	member_index INT NOT NULL PRIMARY KEY AUTO_INCREMENT, -- in increasing level order
-	ball CHAR(44) BINARY NOT NULL UNIQUE
+	stamp CHAR(44) BINARY NOT NULL UNIQUE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4  COLLATE=utf8mb4_unicode_ci;
 
 

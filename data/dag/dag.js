@@ -1,7 +1,7 @@
 /* jslint node: true */
 
 const dagre = require('dagre')
-const constant = require('../../config/const')
+const constant = require('../../config/consts')
 const dbReader = require('./dbReader').getInstance()
 const log = require('../../common/logger')
 const getRedisClient = require('../../redis/redisClient')

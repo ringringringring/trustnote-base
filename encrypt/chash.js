@@ -118,6 +118,7 @@ function mixChecksumIntoCleanData(binCleanData, binChecksum) {
     // add last frag
     if (start < binCleanData.length) arrFrags.push(binCleanData.substring(start))
     return arrFrags.join('')
+    // 把checksum按照arrOffsets的位置插入cleanData中
 }
 
 /**
@@ -137,6 +138,7 @@ function buffer2bin(buf) {
         bytes.push(bin)
     }
     return bytes.join('')
+    // 返回一个二进制的字符串
 }
 
 /**
@@ -165,6 +167,7 @@ function bin2buffer(bin) {
 function getChecksum(cleanData) {
     const fullChecksum = crypto.createHash('sha256').update(cleanData).digest()
     // console.log(full_checksum);
+    // 获得cleanData校验位
     const checksum = Buffer.from([
         fullChecksum[5],
         fullChecksum[13],

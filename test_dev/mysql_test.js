@@ -1,7 +1,6 @@
-'use strict'
-
-var db = require('../db/db');
-const log = require('../common/logger');
+'use strict' 
+var db = require('../db/db')
+const log = require('../common/logger')
 
 async function test () {
    // let ret =  await db.query("select * from addresses where address=?", ['wuwei']);
