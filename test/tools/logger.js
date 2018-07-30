@@ -5,8 +5,7 @@ const path = require('path');
 const p = path.resolve(__dirname, '../config/log.json');
 
 log4js.configure(p);
-const logger = log4js.getLogger('trustnote')
-const TestLogger = log4js.getLogger('trustnote-test')
+const logger = log4js.getLogger('trustnote-test')
 
 /**
 * when running in a production environment, we don't print the debug information
@@ -16,4 +15,3 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 module.exports = logger
-module.exports = TestLogger

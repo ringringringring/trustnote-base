@@ -1,0 +1,14 @@
+{
+    "replaceConsole": true,
+    "appenders": {
+        "out": { "type": "console" },
+        "trustnote-test" : {
+            "type": "dateFile", "filename": "./logs/trustnote_test.log", "pattern": ".yyyy-MM-dd", "compress": true  
+        }
+    },
+    "categories": {
+        "default": { "appenders": ["out", "trustnote-test"], "level": "info" }
+    }
+}
+
+

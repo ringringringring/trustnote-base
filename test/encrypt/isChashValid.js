@@ -1,12 +1,20 @@
 /* global describe it */
 
 const assert = require('assert')
-const logger = require('../../common/logger')
+const logger = require('../../test/tools/logger')
 
 const chash = require('../../encrypt/chash')
 
 describe('encrypt->chash->isChashValid', () => {
     const correct_address = 'NC6OE7KNBL5KWA3NPGRXUZ7YSF7KWZPM'
+
+    beforeEach(() => {
+        logger.info('Test case start.')
+    })
+
+    afterEach(() => {
+        logger.info('Test case end.')
+    })
 
     describe('isChashValid(encoded)', () => {
         it('Verify correct address should return true by object_hash module', () => {
