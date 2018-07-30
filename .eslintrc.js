@@ -3,7 +3,7 @@ module.exports = {
         "browser": true,
         "es6": true
     },
-    "extends": "airbnb-base",
+    "extends": "eslint-config-airbnb",
     "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
