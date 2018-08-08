@@ -1,6 +1,5 @@
-
 const chash = require('../encrypt/chash')
-const objectHash = require('../encrypt/object_hash')
+const objectHash = require('../encrypt/objectHash')
 
 // let offset_160 = chash.calcOffsets(160);
 // console.log(offset_160.length);
@@ -23,3 +22,20 @@ console.log(testAddress)
 isValid = chash.isChashValid(testAddress)
 
 console.log(isValid)
+
+// ['sig', { pubkey: 'AhZA7VXOUVVbqkuZ9+OWFLcfHW2LEpKIF+aUakZzypNQ' }]
+let newAddress = chash.changeOldAddressToNewAddress('VTQFOIBG7CW2K3ALFMDTJHIM2YRT5PCC')
+console.log(newAddress)
+console.log(address === newAddress)
+
+console.log('\n=============\n')
+
+address = objectHash.getChash160(['sig', { pubkey: 'A99C/p2BnuYz3etkI89x1VmEiMejCR+VeAzxdd7T1agH' }])
+console.log(address)
+isValid = chash.isChashValid(address)
+console.log(isValid)
+
+// ['sig', { pubkey: 'A99C/p2BnuYz3etkI89x1VmEiMejCR+VeAzxdd7T1agH' }]
+newAddress = chash.changeOldAddressToNewAddress('WYVBLQ3H6AMUFXLGOKTW7C7UVNM3WP2T')
+console.log(newAddress)
+console.log(address === newAddress)
